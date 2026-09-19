@@ -56,7 +56,7 @@
                 </div>
 
                 <!-- WEIGHT DISPLAY -->
-                <div class="my-6 text-center">
+                <div class="my-5 text-center">
                     <div class="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">今回引いたイチゴの重さ</div>
                     <div class="flex items-baseline justify-center gap-2">
                         <span id="removed-weight-display" class="text-6xl md:text-7xl font-black tracking-tight text-white font-mono">0.0</span>
@@ -78,12 +78,15 @@
                 </div>
 
                 <!-- ACTION BUTTONS -->
-                <div class="grid grid-cols-2 gap-3 w-full mt-5">
-                    <button onclick="setTareBasket()" class="bg-red-600 hover:bg-red-500 active:scale-95 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition duration-150 text-sm md:text-base flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-basket-shopping"></i> カゴセット (基準更新)
+                <div class="grid grid-cols-3 gap-2 w-full mt-4">
+                    <button onclick="setTareBasket()" class="bg-red-600 hover:bg-red-500 active:scale-95 text-white font-bold py-3 px-2 rounded-xl shadow-lg transition duration-150 text-xs md:text-sm flex flex-col items-center justify-center gap-1">
+                        <i class="fa-solid fa-basket-shopping text-base"></i> カゴセット
                     </button>
-                    <button onclick="toggleSimPanel()" class="bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 font-bold py-3.5 px-4 rounded-xl shadow transition duration-150 text-sm md:text-base flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-gamepad"></i> テスト入力
+                    <button onclick="undoLastItem()" class="bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold py-3 px-2 rounded-xl shadow transition duration-150 text-xs md:text-sm flex flex-col items-center justify-center gap-1">
+                        <i class="fa-solid fa-rotate-left text-base"></i> 直前を取り消し
+                    </button>
+                    <button onclick="toggleSimPanel()" class="bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 font-bold py-3 px-2 rounded-xl shadow transition duration-150 text-xs md:text-sm flex flex-col items-center justify-center gap-1">
+                        <i class="fa-solid fa-gamepad text-base"></i> テスト入力
                     </button>
                 </div>
             </div>
@@ -104,8 +107,9 @@
 
             <!-- RANK CONFIG -->
             <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl border border-slate-700/80 p-4 shadow-lg">
-                <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-red-400"></i> 階級・閾値設定 (下限値 g)
+                <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center justify-between">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-sliders text-red-400"></i> 階級・閾値設定 (下限値 g)</span>
+                    <span class="text-[10px] text-slate-400">※重い順に判定</span>
                 </h3>
                 <div class="grid grid-cols-4 sm:grid-cols-6 gap-2 text-center text-xs">
                     <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
@@ -180,8 +184,13 @@
                 </div>
 
                 <div class="pt-2 border-t border-slate-700/80 flex justify-between items-center text-xs text-slate-400">
-                    <span>総選別重量: <strong id="total-weight" class="text-slate-200">0.0</strong> g</span>
-                    <button onclick="resetStats()" class="text-slate-500 hover:text-red-400 transition"><i class="fa-solid fa-rotate-right"></i> リセット</button>
+                    <div class="flex gap-2">
+                        <span>総重量: <strong id="total-weight" class="text-slate-200">0.0</strong>g</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="copyResults()" class="text-blue-400 hover:text-blue-300 transition flex items-center gap-1"><i class="fa-solid fa-copy"></i> コピー</button>
+                        <button onclick="resetStats()" class="text-slate-500 hover:text-red-400 transition flex items-center gap-1"><i class="fa-solid fa-rotate-right"></i> リセット</button>
+                    </div>
                 </div>
             </div>
 
@@ -216,22 +225,20 @@
 
     <!-- SCRIPT -->
     <script>
-        // 大玉（上）から小玉（下）の順序で定義
         const RanksDef = [
-            { key: '3L', name: '3L以上', speech: 'サンエル' },
-            { key: '2L', name: '2Lサイズ', speech: 'ニエル' },
-            { key: 'L', name: 'Lサイズ', speech: 'エル' },
-            { key: 'M', name: 'Mサイズ', speech: 'エム' },
-            { key: 'S', name: 'Sサイズ', speech: 'エス' },
-            { key: '12', name: '12玉', speech: 'じゅうにたま' },
-            { key: '11', name: '11玉', speech: 'じゅういちたま' },
-            { key: '10', name: '10玉', speech: 'じゅうたま' },
-            { key: '9', name: '9玉', speech: 'きゅうたま' },
-            { key: '8', name: '8玉', speech: 'はちたま' },
-            { key: '7', name: '7玉', speech: 'ななたま' },
-            { key: '6', name: '6玉', speech: 'ろくたま' },
-            { key: '5', name: '5玉', speech: 'ごたま' },
-            { key: 'out', name: '規格外', speech: 'きかくがい' }
+            { key: '2L', name: '2Lサイズ' },
+            { key: 'L', name: 'Lサイズ' },
+            { key: 'M', name: 'Mサイズ' },
+            { key: 'S', name: 'Sサイズ' },
+            { key: '12', name: '12玉' },
+            { key: '11', name: '11玉' },
+            { key: '10', name: '10玉' },
+            { key: '9', name: '9玉' },
+            { key: '8', name: '8玉' },
+            { key: '7', name: '7玉' },
+            { key: '6', name: '6玉' },
+            { key: '5', name: '5玉' },
+            { key: 'out', name: '規格外' }
         ];
 
         const state = {
@@ -272,38 +279,36 @@
 
         function getThresholds() {
             return {
-                '5': parseFloat(document.getElementById('th-5').value) || 5.0,
-                '6': parseFloat(document.getElementById('th-6').value) || 6.0,
-                '7': parseFloat(document.getElementById('th-7').value) || 7.0,
-                '8': parseFloat(document.getElementById('th-8').value) || 8.0,
-                '9': parseFloat(document.getElementById('th-9').value) || 9.0,
-                '10': parseFloat(document.getElementById('th-10').value) || 10.0,
-                '11': parseFloat(document.getElementById('th-11').value) || 11.0,
-                '12': parseFloat(document.getElementById('th-12').value) || 12.0,
-                'S': parseFloat(document.getElementById('th-s').value) || 14.0,
-                'M': parseFloat(document.getElementById('th-m').value) || 18.0,
-                'L': parseFloat(document.getElementById('th-l').value) || 23.0,
                 '2L': parseFloat(document.getElementById('th-2l').value) || 30.0,
+                'L': parseFloat(document.getElementById('th-l').value) || 23.0,
+                'M': parseFloat(document.getElementById('th-m').value) || 18.0,
+                'S': parseFloat(document.getElementById('th-s').value) || 14.0,
+                '12': parseFloat(document.getElementById('th-12').value) || 12.0,
+                '11': parseFloat(document.getElementById('th-11').value) || 11.0,
+                '10': parseFloat(document.getElementById('th-10').value) || 10.0,
+                '9': parseFloat(document.getElementById('th-9').value) || 9.0,
+                '8': parseFloat(document.getElementById('th-8').value) || 8.0,
+                '7': parseFloat(document.getElementById('th-7').value) || 7.0,
+                '6': parseFloat(document.getElementById('th-6').value) || 6.0,
+                '5': parseFloat(document.getElementById('th-5').value) || 5.0,
             };
         }
 
-        // 判定ロジック（重い方から順に判定）
         function evaluateRank(weight) {
             const th = getThresholds();
-            if (weight < th['5']) return { name: '規格外', key: 'out', speech: 'きかくがい' };
-            if (weight < th['6']) return { name: '5玉', key: '5', speech: 'ごたま' };
-            if (weight < th['7']) return { name: '6玉', key: '6', speech: 'ろくたま' };
-            if (weight < th['8']) return { name: '7玉', key: '7', speech: 'ななたま' };
-            if (weight < th['9']) return { name: '8玉', key: '8', speech: 'はちたま' };
-            if (weight < th['10']) return { name: '9玉', key: '9', speech: 'きゅうたま' };
-            if (weight < th['11']) return { name: '10玉', key: '10', speech: 'じゅうたま' };
-            if (weight < th['12']) return { name: '11玉', key: '11', speech: 'じゅういちたま' };
-            if (weight < th['S']) return { name: '12玉', key: '12', speech: 'じゅうにたま' };
-            if (weight < th['M']) return { name: 'Sサイズ', key: 'S', speech: 'エス' };
-            if (weight < th['L']) return { name: 'Mサイズ', key: 'M', speech: 'エム' };
-            if (weight < th['2L']) return { name: 'Lサイズ', key: 'L', speech: 'エル' };
-            if (weight < 38.0) return { name: '2Lサイズ', key: '2L', speech: 'ニエル' };
-            return { name: '3L以上', key: '3L', speech: 'サンエル' };
+            if (weight >= th['2L']) return { name: '2Lサイズ', key: '2L' };
+            if (weight >= th['L']) return { name: 'Lサイズ', key: 'L' };
+            if (weight >= th['M']) return { name: 'Mサイズ', key: 'M' };
+            if (weight >= th['S']) return { name: 'Sサイズ', key: 'S' };
+            if (weight >= th['12']) return { name: '12玉', key: '12' };
+            if (weight >= th['11']) return { name: '11玉', key: '11' };
+            if (weight >= th['10']) return { name: '10玉', key: '10' };
+            if (weight >= th['9']) return { name: '9玉', key: '9' };
+            if (weight >= th['8']) return { name: '8玉', key: '8' };
+            if (weight >= th['7']) return { name: '7玉', key: '7' };
+            if (weight >= th['6']) return { name: '6玉', key: '6' };
+            if (weight >= th['5']) return { name: '5玉', key: '5' };
+            return { name: '規格外', key: 'out' };
         }
 
         function processGrossWeightUpdate(newGross) {
@@ -322,9 +327,10 @@
                 badge.innerText = rank.name;
                 badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 border text-white bg-slate-700 border-slate-600";
 
-                speakText(`${diffWeight.toFixed(0)}グラム、${rank.speech}`);
+                speakText(`${diffWeight.toFixed(0)}グラム、${rank.name}`);
 
-                recordLog(diffWeight, rank);
+                // 減算する直前のbaseWeightを記録に残す（Undo対策）
+                recordLog(diffWeight, rank, state.baseWeight);
                 updateStatsUI();
 
                 state.baseWeight = newGross;
@@ -345,15 +351,54 @@
             speakText("カゴを設定しました。");
         }
 
-        function recordLog(weight, rank) {
+        function recordLog(weight, rank, prevBase) {
             const timeStr = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            state.logs.unshift({ time: timeStr, weight: weight, rankName: rank.name });
+            state.logs.unshift({ 
+                time: timeStr, 
+                weight: weight, 
+                rankKey: rank.key, 
+                rankName: rank.name,
+                prevBase: prevBase // 取消時に戻すための基準重量を保持
+            });
             if (state.stats[rank.key] !== undefined) state.stats[rank.key]++;
             else state.stats.out++;
             state.stats.totalCount++;
             state.stats.totalWeight += weight;
 
+            renderLogsUI();
+        }
+
+        // 直前の操作を取り消す（アンドゥ）機能の修正版
+        function undoLastItem() {
+            if (state.logs.length === 0) {
+                alert("取り消す履歴がありません。");
+                return;
+            }
+            const last = state.logs.shift(); // 最新のログを削除
+            state.stats[last.rankKey]--;
+            state.stats.totalCount--;
+            state.stats.totalWeight -= last.weight;
+
+            // 記録してあった「減算前の正確なベース重量」に復元する
+            state.baseWeight = last.prevBase;
+            document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
+            document.getElementById('removed-weight-display').innerText = `(-${last.weight.toFixed(1)}) 取消`;
+
+            const badge = document.getElementById('rank-badge');
+            badge.innerText = "取消完了";
+            badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 bg-amber-900/80 text-amber-300 border border-amber-500/50";
+
+            speakText("直前の選別を取り消しました。");
+            updateStatsUI();
+            renderLogsUI();
+        }
+
+        function renderLogsUI() {
             const container = document.getElementById('log-container');
+            if (state.logs.length === 0) {
+                container.innerHTML = '<div class="text-slate-500 text-center py-6">選別データはまだありません</div>';
+                return;
+            }
             container.innerHTML = state.logs.map(l => `
                 <div class="flex justify-between items-center bg-slate-900/50 px-3 py-1.5 rounded border border-slate-700/50">
                     <span class="text-slate-500 font-mono">${l.time}</span>
@@ -380,6 +425,25 @@
             state.logs = [];
             document.getElementById('log-container').innerHTML = '<div class="text-slate-500 text-center py-6">選別データはまだありません</div>';
             updateStatsUI();
+        }
+
+        function copyResults() {
+            let text = "【イチゴ選別結果】\n" + RanksDef.map(r => `${r.name}: ${state.stats[r.key]}個`).join('\n') + `\n合計個数: ${state.stats.totalCount}個\n総重量: ${state.stats.totalWeight.toFixed(1)}g`;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("選別結果をクリップボードにコピーしました！");
+            }).catch(err => {
+                alert("コピーに失敗しました: " + err);
+            });
+        }
+
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    await navigator.wakeLock.request('screen');
+                } catch (err) {
+                    console.error(`${err.name}, ${err.message}`);
+                }
+            }
         }
 
         async function connectScale() {
@@ -410,6 +474,7 @@
                 document.getElementById('status-indicator').className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse";
                 document.getElementById('status-text').innerText = "スケールオンライン";
                 speakText("Bluetooth接続完了");
+                requestWakeLock();
 
             } catch (error) {
                 document.getElementById('conn-text').innerText = "接続失敗";
@@ -418,7 +483,8 @@
         }
 
         function parseScaleData(value) {
-            if (value.byteLength < 2) return;
+            // バイト長が短い場合のクラッシュ（RangeError）を防ぐため3バイト以上にチェックを厳格化
+            if (value.byteLength < 3) return;
             let weight = value.getUint16(1, true) / 10.0; 
             if (isNaN(weight) || weight <= 0) {
                 weight = value.getUint16(0, true);
@@ -435,6 +501,7 @@
         function simSetBasket() {
             state.lastGrossWeight = 2000.0;
             setTareBasket();
+            requestWakeLock();
         }
         function toggleSimPanel() {
             document.getElementById('sim-panel').classList.toggle('hidden');
@@ -457,8 +524,8 @@
                 });
                 const data = await res.json();
                 output.innerText = data.candidates[0].content.parts[0].text;
-            } catch (e) {
-                output.innerText = "エラー: " + e.message;
+            } else {
+                output.innerText = "エラーが発生しました。";
             }
         }
     </script>
