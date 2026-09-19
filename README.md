@@ -94,12 +94,11 @@
                     <span><i class="fa-solid fa-flask"></i> 模擬テスト (クリックで減算動作・音声テスト)</span>
                     <button onclick="toggleSimPanel()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-                <div class="grid grid-cols-5 gap-2">
-                    <button onclick="simTakeBerry(6.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">6.0g</button>
-                    <button onclick="simTakeBerry(8.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">8.5g</button>
-                    <button onclick="simTakeBerry(12.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">12.5g</button>
-                    <button onclick="simTakeBerry(18.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">18.0g</button>
-                    <button onclick="simTakeBerry(32.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">32.0g</button>
+                <div class="grid grid-cols-4 gap-2">
+                    <button onclick="simTakeBerry(5.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">5玉(5.5g)</button>
+                    <button onclick="simTakeBerry(10.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">10玉(10.5g)</button>
+                    <button onclick="simTakeBerry(16.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">S(16g)</button>
+                    <button onclick="simTakeBerry(25.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">L(25g)</button>
                 </div>
             </div>
 
@@ -110,52 +109,52 @@
                 </h3>
                 <div class="grid grid-cols-4 sm:grid-cols-6 gap-2 text-center text-xs">
                     <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">5g</span>
-                        <input type="number" id="th-5" value="5.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">6g</span>
-                        <input type="number" id="th-6" value="6.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">7g</span>
-                        <input type="number" id="th-7" value="7.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">8g</span>
-                        <input type="number" id="th-8" value="8.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">9g</span>
-                        <input type="number" id="th-9" value="9.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">10g</span>
-                        <input type="number" id="th-10" value="10.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">11g</span>
-                        <input type="number" id="th-11" value="11.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">12g</span>
-                        <input type="number" id="th-12" value="12.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">S</span>
-                        <input type="number" id="th-s" value="14.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">M</span>
-                        <input type="number" id="th-m" value="18.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                        <span class="block text-slate-400 font-bold mb-1">2L</span>
+                        <input type="number" id="th-2l" value="30.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
                     </div>
                     <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
                         <span class="block text-slate-400 font-bold mb-1">L</span>
                         <input type="number" id="th-l" value="23.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
                     </div>
                     <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">2L</span>
-                        <input type="number" id="th-2l" value="30.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                        <span class="block text-slate-400 font-bold mb-1">M</span>
+                        <input type="number" id="th-m" value="18.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">S</span>
+                        <input type="number" id="th-s" value="14.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">12玉</span>
+                        <input type="number" id="th-12" value="12.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">11玉</span>
+                        <input type="number" id="th-11" value="11.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">10玉</span>
+                        <input type="number" id="th-10" value="10.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">9玉</span>
+                        <input type="number" id="th-9" value="9.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">8玉</span>
+                        <input type="number" id="th-8" value="8.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">7玉</span>
+                        <input type="number" id="th-7" value="7.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">6玉</span>
+                        <input type="number" id="th-6" value="6.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">5玉</span>
+                        <input type="number" id="th-5" value="5.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
                     </div>
                 </div>
             </div>
@@ -217,21 +216,22 @@
 
     <!-- SCRIPT -->
     <script>
+        // 大玉（上）から小玉（下）の順序で定義
         const RanksDef = [
             { key: '3L', name: '3L以上', speech: 'サンエル' },
             { key: '2L', name: '2Lサイズ', speech: 'ニエル' },
             { key: 'L', name: 'Lサイズ', speech: 'エル' },
             { key: 'M', name: 'Mサイズ', speech: 'エム' },
             { key: 'S', name: 'Sサイズ', speech: 'エス' },
-            { key: '12', name: '12g級', speech: 'じゅうに' },
-            { key: '11', name: '11g級', speech: 'じゅういち' },
-            { key: '10', name: '10g級', speech: 'じゅう' },
-            { key: '9', name: '9g級', speech: 'きゅう' },
-            { key: '8', name: '8g級', speech: 'はち' },
-            { key: '7', name: '7g級', speech: 'なな' },
-            { key: '6', name: '6g級', speech: 'ろく' },
-            { key: '5', name: '5g級', speech: 'ご' },
-            { key: 'out', name: '規格外', speech: 'がいきかく' }
+            { key: '12', name: '12玉', speech: 'じゅうにたま' },
+            { key: '11', name: '11玉', speech: 'じゅういちたま' },
+            { key: '10', name: '10玉', speech: 'じゅうたま' },
+            { key: '9', name: '9玉', speech: 'きゅうたま' },
+            { key: '8', name: '8玉', speech: 'はちたま' },
+            { key: '7', name: '7玉', speech: 'ななたま' },
+            { key: '6', name: '6玉', speech: 'ろくたま' },
+            { key: '5', name: '5玉', speech: 'ごたま' },
+            { key: 'out', name: '規格外', speech: 'きかくがい' }
         ];
 
         const state = {
@@ -287,17 +287,18 @@
             };
         }
 
+        // 判定ロジック（重い方から順に判定）
         function evaluateRank(weight) {
             const th = getThresholds();
-            if (weight < th['5']) return { name: '規格外', key: 'out', speech: '規格外' };
-            if (weight < th['6']) return { name: '5g級', key: '5', speech: 'ごグラム' };
-            if (weight < th['7']) return { name: '6g級', key: '6', speech: 'ろくグラム' };
-            if (weight < th['8']) return { name: '7g級', key: '7', speech: 'ななグラム' };
-            if (weight < th['9']) return { name: '8g級', key: '8', speech: 'はちグラム' };
-            if (weight < th['10']) return { name: '9g級', key: '9', speech: 'きゅうグラム' };
-            if (weight < th['11']) return { name: '10g級', key: '10', speech: 'じゅうグラム' };
-            if (weight < th['12']) return { name: '11g級', key: '11', speech: 'じゅういちグラム' };
-            if (weight < th['S']) return { name: '12g級', key: '12', speech: 'じゅうにグラム' };
+            if (weight < th['5']) return { name: '規格外', key: 'out', speech: 'きかくがい' };
+            if (weight < th['6']) return { name: '5玉', key: '5', speech: 'ごたま' };
+            if (weight < th['7']) return { name: '6玉', key: '6', speech: 'ろくたま' };
+            if (weight < th['8']) return { name: '7玉', key: '7', speech: 'ななたま' };
+            if (weight < th['9']) return { name: '8玉', key: '8', speech: 'はちたま' };
+            if (weight < th['10']) return { name: '9玉', key: '9', speech: 'きゅうたま' };
+            if (weight < th['11']) return { name: '10玉', key: '10', speech: 'じゅうたま' };
+            if (weight < th['12']) return { name: '11玉', key: '11', speech: 'じゅういちたま' };
+            if (weight < th['S']) return { name: '12玉', key: '12', speech: 'じゅうにたま' };
             if (weight < th['M']) return { name: 'Sサイズ', key: 'S', speech: 'エス' };
             if (weight < th['L']) return { name: 'Mサイズ', key: 'M', speech: 'エム' };
             if (weight < th['2L']) return { name: 'Lサイズ', key: 'L', speech: 'エル' };
@@ -381,7 +382,6 @@
             updateStatsUI();
         }
 
-        // 市販のBLEスケール（Weight Measurement Service: 0x181D / 0x181B など）の自動データ受信用
         async function connectScale() {
             try {
                 document.getElementById('conn-text').innerText = "接続中...";
@@ -393,10 +393,7 @@
                 const server = await state.bluetoothDevice.gatt.connect();
                 document.getElementById('conn-text').innerText = "サービス探索中";
                 
-                // 利用可能なサービスを走査してWeight Measurement通知を受け取る
                 const services = await server.getPrimaryServices();
-                let foundNotify = false;
-
                 for (const service of services) {
                     const characteristics = await service.getCharacteristics();
                     for (const char of characteristics) {
@@ -405,7 +402,6 @@
                             char.addEventListener('characteristicvaluechanged', (e) => {
                                 parseScaleData(e.target.value);
                             });
-                            foundNotify = true;
                         }
                     }
                 }
@@ -421,13 +417,11 @@
             }
         }
 
-        // BLEスケールからのバイナリデータを数値（グラム）に変換する汎用パーサー
         function parseScaleData(value) {
             if (value.byteLength < 2) return;
-            // 一般的なBLE体重/秤フォーマット（リトルエンディアン等の数値抽出）
             let weight = value.getUint16(1, true) / 10.0; 
             if (isNaN(weight) || weight <= 0) {
-                weight = value.getUint16(0, true); // フォールバック
+                weight = value.getUint16(0, true);
             }
             if (weight > 0) {
                 processGrossWeightUpdate(weight);
