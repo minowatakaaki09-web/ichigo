@@ -23,7 +23,7 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    イチゴ減算秤 <span class="bg-red-500/20 text-red-400 text-xs px-2 py-0.5 rounded-full border border-red-500/30">分太AI Pro</span>
+                    イチゴ減算秤 <span class="bg-red-500/20 text-red-400 text-xs px-2 py-0.5 rounded-full border border-red-500/30">Pro</span>
                 </h1>
                 <p class="text-xs text-slate-400">リアルタイム減算選別・音声ナビゲーション</p>
             </div>
@@ -36,7 +36,7 @@
     </header>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 max-w-4xl w-full mx-auto p-3 md:p-6 grid grid-cols-1 md:grid-cols-12 gap-4">
+    <main class="flex-1 max-w-5xl w-full mx-auto p-3 md:p-6 grid grid-cols-1 md:grid-cols-12 gap-4">
 
         <!-- LEFT PANEL -->
         <section class="md:col-span-7 flex flex-col gap-4">
@@ -95,44 +95,67 @@
                     <button onclick="toggleSimPanel()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="grid grid-cols-5 gap-2">
-                    <button onclick="simTakeBerry(12.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">12.5g<br><span class="text-[10px] text-slate-400">S</span></button>
-                    <button onclick="simTakeBerry(18.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">18.0g<br><span class="text-[10px] text-slate-400">M</span></button>
-                    <button onclick="simTakeBerry(24.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">24.5g<br><span class="text-[10px] text-slate-400">L</span></button>
-                    <button onclick="simTakeBerry(32.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">32.0g<br><span class="text-[10px] text-slate-400">2L</span></button>
-                    <button onclick="simTakeBerry(45.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">45.0g<br><span class="text-[10px] text-slate-400">3L</span></button>
+                    <button onclick="simTakeBerry(6.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">6.0g</button>
+                    <button onclick="simTakeBerry(8.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">8.5g</button>
+                    <button onclick="simTakeBerry(12.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">12.5g</button>
+                    <button onclick="simTakeBerry(18.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">18.0g</button>
+                    <button onclick="simTakeBerry(32.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">32.0g</button>
                 </div>
             </div>
 
             <!-- RANK CONFIG -->
             <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl border border-slate-700/80 p-4 shadow-lg">
                 <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-red-400"></i> 選別階級・閾値設定 (グラム)
+                    <i class="fa-solid fa-sliders text-red-400"></i> 階級・閾値設定 (下限値 g)
                 </h3>
-                <div class="grid grid-cols-5 gap-2 text-center text-xs">
+                <div class="grid grid-cols-4 sm:grid-cols-6 gap-2 text-center text-xs">
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">5g</span>
+                        <input type="number" id="th-5" value="5.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">6g</span>
+                        <input type="number" id="th-6" value="6.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">7g</span>
+                        <input type="number" id="th-7" value="7.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">8g</span>
+                        <input type="number" id="th-8" value="8.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">9g</span>
+                        <input type="number" id="th-9" value="9.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">10g</span>
+                        <input type="number" id="th-10" value="10.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">11g</span>
+                        <input type="number" id="th-11" value="11.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
+                        <span class="block text-slate-400 font-bold mb-1">12g</span>
+                        <input type="number" id="th-12" value="12.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
+                    </div>
                     <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
                         <span class="block text-slate-400 font-bold mb-1">S</span>
-                        <input type="number" id="th-s" value="10.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                        <span class="text-[10px] text-slate-500">g〜</span>
+                        <input type="number" id="th-s" value="14.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
                     </div>
                     <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
                         <span class="block text-slate-400 font-bold mb-1">M</span>
-                        <input type="number" id="th-m" value="15.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                        <span class="text-[10px] text-slate-500">g〜</span>
+                        <input type="number" id="th-m" value="18.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
                     </div>
                     <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
                         <span class="block text-slate-400 font-bold mb-1">L</span>
-                        <input type="number" id="th-l" value="20.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                        <span class="text-[10px] text-slate-500">g〜</span>
+                        <input type="number" id="th-l" value="23.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
                     </div>
                     <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
                         <span class="block text-slate-400 font-bold mb-1">2L</span>
-                        <input type="number" id="th-2l" value="28.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                        <span class="text-[10px] text-slate-500">g〜</span>
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">3L</span>
-                        <input type="number" id="th-3l" value="38.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                        <span class="text-[10px] text-slate-500">g〜</span>
+                        <input type="number" id="th-2l" value="30.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
                     </div>
                 </div>
             </div>
@@ -153,50 +176,27 @@
                     </span>
                 </div>
 
-                <div class="grid grid-cols-3 gap-2 text-center text-xs">
-                    <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700">
-                        <div class="text-slate-400">3L</div>
-                        <div id="count-3l" class="text-lg font-bold text-amber-400">0</div>
-                    </div>
-                    <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700">
-                        <div class="text-slate-400">2L</div>
-                        <div id="count-2l" class="text-lg font-bold text-emerald-400">0</div>
-                    </div>
-                    <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700">
-                        <div class="text-slate-400">L</div>
-                        <div id="count-l" class="text-lg font-bold text-blue-400">0</div>
-                    </div>
-                    <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700">
-                        <div class="text-slate-400">M</div>
-                        <div id="count-m" class="text-lg font-bold text-indigo-400">0</div>
-                    </div>
-                    <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700">
-                        <div class="text-slate-400">S</div>
-                        <div id="count-s" class="text-lg font-bold text-purple-400">0</div>
-                    </div>
-                    <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700">
-                        <div class="text-slate-400">規格外</div>
-                        <div id="count-out" class="text-lg font-bold text-slate-400">0</div>
-                    </div>
+                <div class="grid grid-cols-4 gap-1.5 text-center text-xs mb-3" id="stats-grid">
+                    <!-- 動的生成 -->
                 </div>
 
-                <div class="mt-3 pt-2 border-t border-slate-700/80 flex justify-between items-center text-xs text-slate-400">
+                <div class="pt-2 border-t border-slate-700/80 flex justify-between items-center text-xs text-slate-400">
                     <span>総選別重量: <strong id="total-weight" class="text-slate-200">0.0</strong> g</span>
                     <button onclick="resetStats()" class="text-slate-500 hover:text-red-400 transition"><i class="fa-solid fa-rotate-right"></i> リセット</button>
                 </div>
             </div>
 
             <!-- LOG HISTORY -->
-            <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl border border-slate-700/80 p-4 shadow-lg flex-1 flex flex-col min-h-[180px]">
+            <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl border border-slate-700/80 p-4 shadow-lg flex-1 flex flex-col min-h-[160px]">
                 <h3 class="text-sm font-bold text-slate-300 mb-2 flex items-center gap-2">
                     <i class="fa-solid fa-list-ol text-blue-400"></i> 選別履歴ログ
                 </h3>
-                <div id="log-container" class="flex-1 overflow-y-auto max-h-[220px] custom-scrollbar space-y-1.5 pr-1 text-xs">
+                <div id="log-container" class="flex-1 overflow-y-auto max-h-[180px] custom-scrollbar space-y-1.5 pr-1 text-xs">
                     <div class="text-slate-500 text-center py-6">選別データはまだありません</div>
                 </div>
             </div>
 
-            <!-- GEMINI AI ANALYSIS INTEGRATION -->
+            <!-- GEMINI AI ANALYSIS -->
             <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl border border-slate-700/80 p-4 shadow-lg">
                 <h3 class="text-sm font-bold text-slate-300 mb-2 flex items-center justify-between">
                     <span class="flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i> AI収穫分析</span>
@@ -206,7 +206,7 @@
                 <button onclick="generateAiReport()" class="w-full bg-purple-600 hover:bg-purple-500 active:scale-95 text-white font-bold py-2 px-3 rounded-lg text-xs transition duration-150 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-brain"></i> 本日の選別結果をAI分析
                 </button>
-                <div id="ai-report-output" class="mt-2 p-2.5 bg-slate-900/80 rounded-lg border border-slate-700/50 text-xs text-slate-300 max-h-32 overflow-y-auto custom-scrollbar whitespace-pre-wrap leading-relaxed">
+                <div id="ai-report-output" class="mt-2 p-2.5 bg-slate-900/80 rounded-lg border border-slate-700/50 text-xs text-slate-300 max-h-28 overflow-y-auto custom-scrollbar whitespace-pre-wrap leading-relaxed">
                     APIキーを入力してボタンを押すと、収穫バランスのアドバイスをAIが生成します。
                 </div>
             </div>
@@ -217,14 +217,47 @@
 
     <!-- SCRIPT -->
     <script>
+        const RanksDef = [
+            { key: '3L', name: '3L以上', speech: 'サンエル' },
+            { key: '2L', name: '2Lサイズ', speech: 'ニエル' },
+            { key: 'L', name: 'Lサイズ', speech: 'エル' },
+            { key: 'M', name: 'Mサイズ', speech: 'エム' },
+            { key: 'S', name: 'Sサイズ', speech: 'エス' },
+            { key: '12', name: '12g級', speech: 'じゅうに' },
+            { key: '11', name: '11g級', speech: 'じゅういち' },
+            { key: '10', name: '10g級', speech: 'じゅう' },
+            { key: '9', name: '9g級', speech: 'きゅう' },
+            { key: '8', name: '8g級', speech: 'はち' },
+            { key: '7', name: '7g級', speech: 'なな' },
+            { key: '6', name: '6g級', speech: 'ろく' },
+            { key: '5', name: '5g級', speech: 'ご' },
+            { key: 'out', name: '規格外', speech: 'がいきかく' }
+        ];
+
         const state = {
             lastGrossWeight: 0.0,
             baseWeight: 0.0,
             isBasketSet: false,
             bluetoothDevice: null,
-            stats: { '3L': 0, '2L': 0, 'L': 0, 'M': 0, 'S': 0, out: 0, totalCount: 0, totalWeight: 0.0 },
+            stats: {},
             logs: []
         };
+
+        RanksDef.forEach(r => state.stats[r.key] = 0);
+        state.stats.totalCount = 0;
+        state.stats.totalWeight = 0.0;
+
+        initStatsUI();
+
+        function initStatsUI() {
+            const grid = document.getElementById('stats-grid');
+            grid.innerHTML = RanksDef.map(r => `
+                <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700">
+                    <div class="text-slate-400 text-[10px]">${r.name}</div>
+                    <div id="count-${r.key}" class="text-base font-bold text-slate-200">0</div>
+                </div>
+            `).join('');
+        }
 
         const synth = window.speechSynthesis;
         function speakText(text) {
@@ -237,19 +270,39 @@
             synth.speak(utter);
         }
 
-        function evaluateRank(weight) {
-            const thS = parseFloat(document.getElementById('th-s').value) || 10.0;
-            const thM = parseFloat(document.getElementById('th-m').value) || 15.0;
-            const thL = parseFloat(document.getElementById('th-l').value) || 20.0;
-            const th2L = parseFloat(document.getElementById('th-2l').value) || 28.0;
-            const th3L = parseFloat(document.getElementById('th-3l').value) || 38.0;
+        function getThresholds() {
+            return {
+                '5': parseFloat(document.getElementById('th-5').value) || 5.0,
+                '6': parseFloat(document.getElementById('th-6').value) || 6.0,
+                '7': parseFloat(document.getElementById('th-7').value) || 7.0,
+                '8': parseFloat(document.getElementById('th-8').value) || 8.0,
+                '9': parseFloat(document.getElementById('th-9').value) || 9.0,
+                '10': parseFloat(document.getElementById('th-10').value) || 10.0,
+                '11': parseFloat(document.getElementById('th-11').value) || 11.0,
+                '12': parseFloat(document.getElementById('th-12').value) || 12.0,
+                'S': parseFloat(document.getElementById('th-s').value) || 14.0,
+                'M': parseFloat(document.getElementById('th-m').value) || 18.0,
+                'L': parseFloat(document.getElementById('th-l').value) || 23.0,
+                '2L': parseFloat(document.getElementById('th-2l').value) || 30.0,
+            };
+        }
 
-            if (weight < thS) return { name: '規格外', key: 'out', bg: 'bg-slate-700', color: 'text-slate-300', speech: '規格外' };
-            if (weight < thM) return { name: 'Sサイズ', key: 'S', bg: 'bg-purple-900/80', color: 'text-purple-300', speech: 'エス' };
-            if (weight < thL) return { name: 'Mサイズ', key: 'M', bg: 'bg-indigo-900/80', color: 'text-indigo-300', speech: 'エム' };
-            if (weight < th2L) return { name: 'Lサイズ', key: 'L', bg: 'bg-blue-900/80', color: 'text-blue-300', speech: 'エル' };
-            if (weight < th3L) return { name: '2Lサイズ', key: '2L', bg: 'bg-emerald-900/80', color: 'text-emerald-300', speech: 'ニエル' };
-            return { name: '3Lサイズ', key: '3L', bg: 'bg-amber-900/80', color: 'text-amber-300', speech: 'サンエル' };
+        function evaluateRank(weight) {
+            const th = getThresholds();
+            if (weight < th['5']) return { name: '規格外', key: 'out', speech: '規格外' };
+            if (weight < th['6']) return { name: '5g級', key: '5', speech: 'ごグラム' };
+            if (weight < th['7']) return { name: '6g級', key: '6', speech: 'ろくグラム' };
+            if (weight < th['8']) return { name: '7g級', key: '7', speech: 'ななグラム' };
+            if (weight < th['9']) return { name: '8g級', key: '8', speech: 'はちグラム' };
+            if (weight < th['10']) return { name: '9g級', key: '9', speech: 'きゅうグラム' };
+            if (weight < th['11']) return { name: '10g級', key: '10', speech: 'じゅうグラム' };
+            if (weight < th['12']) return { name: '11g級', key: '11', speech: 'じゅういちグラム' };
+            if (weight < th['S']) return { name: '12g級', key: '12', speech: 'じゅうにグラム' };
+            if (weight < th['M']) return { name: 'Sサイズ', key: 'S', speech: 'エス' };
+            if (weight < th['L']) return { name: 'Mサイズ', key: 'M', speech: 'エム' };
+            if (weight < th['2L']) return { name: 'Lサイズ', key: 'L', speech: 'エル' };
+            if (weight < 38.0) return { name: '2Lサイズ', key: '2L', speech: 'ニエル' };
+            return { name: '3L以上', key: '3L', speech: 'サンエル' };
         }
 
         function processGrossWeightUpdate(newGross) {
@@ -260,13 +313,13 @@
 
             const diffWeight = state.baseWeight - newGross;
 
-            if (diffWeight >= 5.0) {
+            if (diffWeight >= 3.0) { // 3g以上の減少を1個の苺として検知
                 const rank = evaluateRank(diffWeight);
 
                 document.getElementById('removed-weight-display').innerText = diffWeight.toFixed(1);
                 const badge = document.getElementById('rank-badge');
                 badge.innerText = rank.name;
-                badge.className = `inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 border text-white ${rank.bg} ${rank.color}`;
+                badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 border text-white bg-slate-700 border-slate-600";
 
                 speakText(`${diffWeight.toFixed(0)}グラム、${rank.speech}`);
 
@@ -310,39 +363,74 @@
         }
 
         function updateStatsUI() {
-            document.getElementById('count-3l').innerText = state.stats['3L'];
-            document.getElementById('count-2l').innerText = state.stats['2L'];
-            document.getElementById('count-l').innerText = state.stats['L'];
-            document.getElementById('count-m').innerText = state.stats['M'];
-            document.getElementById('count-s').innerText = state.stats['S'];
-            document.getElementById('count-out').innerText = state.stats.out;
+            RanksDef.forEach(r => {
+                const el = document.getElementById(`count-${r.key}`);
+                if (el) el.innerText = state.stats[r.key];
+            });
             document.getElementById('total-count-badge').innerText = `合計: ${state.stats.totalCount} 個`;
             document.getElementById('total-weight').innerText = state.stats.totalWeight.toFixed(1);
         }
 
         function resetStats() {
             if(!confirm("選別集計データをリセットしますか？")) return;
-            state.stats = { '3L': 0, '2L': 0, 'L': 0, 'M': 0, 'S': 0, out: 0, totalCount: 0, totalWeight: 0.0 };
+            RanksDef.forEach(r => state.stats[r.key] = 0);
+            state.stats.totalCount = 0;
+            state.stats.totalWeight = 0.0;
             state.logs = [];
             document.getElementById('log-container').innerHTML = '<div class="text-slate-500 text-center py-6">選別データはまだありません</div>';
             updateStatsUI();
         }
 
+        // 市販のBLEスケール（Weight Measurement Service: 0x181D / 0x181B など）の自動データ受信用
         async function connectScale() {
             try {
-                document.getElementById('conn-text').innerText = "検索中...";
+                document.getElementById('conn-text').innerText = "接続中...";
                 state.bluetoothDevice = await navigator.bluetooth.requestDevice({
                     acceptAllDevices: true,
-                    optionalServices: ['0000181d-0000-1000-8000-00805f9b34fb', '0000181b-0000-1000-8000-00805f9b34fb']
+                    optionalServices: ['0000181d-0000-1000-8000-00805f9b34fb', '0000181b-0000-1000-8000-00805f9b34fb', '0000fff0-0000-1000-8000-00805f9b34fb']
                 });
-                await state.bluetoothDevice.gatt.connect();
+
+                const server = await state.bluetoothDevice.gatt.connect();
+                document.getElementById('conn-text').innerText = "サービス探索中";
+                
+                // 利用可能なサービスを走査してWeight Measurement通知を受け取る
+                const services = await server.getPrimaryServices();
+                let foundNotify = false;
+
+                for (const service of services) {
+                    const characteristics = await service.getCharacteristics();
+                    for (const char of characteristics) {
+                        if (char.properties.notify || char.properties.indicate) {
+                            await char.startNotifications();
+                            char.addEventListener('characteristicvaluechanged', (e) => {
+                                parseScaleData(e.target.value);
+                            });
+                            foundNotify = true;
+                        }
+                    }
+                }
+
                 document.getElementById('conn-text').innerText = "接続済み";
                 document.getElementById('status-indicator').className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse";
                 document.getElementById('status-text').innerText = "スケールオンライン";
                 speakText("Bluetooth接続完了");
+
             } catch (error) {
                 document.getElementById('conn-text').innerText = "接続失敗";
                 alert("接続エラー: " + error.message);
+            }
+        }
+
+        // BLEスケールからのバイナリデータを数値（グラム）に変換する汎用パーサー
+        function parseScaleData(value) {
+            if (value.byteLength < 2) return;
+            // 一般的なBLE体重/秤フォーマット（リトルエンディアン等の数値抽出）
+            let weight = value.getUint16(1, true) / 10.0; 
+            if (isNaN(weight) || weight <= 0) {
+                weight = value.getUint16(0, true); // フォールバック
+            }
+            if (weight > 0) {
+                processGrossWeightUpdate(weight);
             }
         }
 
@@ -363,7 +451,10 @@
             if (!apiKey) { alert("API Key を入力してください。"); return; }
             const output = document.getElementById('ai-report-output');
             output.innerText = "分析中...";
-            const prompt = `イチゴ選別データ分析:\n- 3L: ${state.stats['3L']}\n- 2L: ${state.stats['2L']}\n- L: ${state.stats['L']}\n- M: ${state.stats['M']}\n- S: ${state.stats['S']}\n- 規格外: ${state.stats.out}\n- 総重量: ${state.stats.totalWeight.toFixed(1)}g`;
+            
+            let summaryText = RanksDef.map(r => `- ${r.name}: ${state.stats[r.key]}個`).join('\n');
+            const prompt = `イチゴ選別データ分析:\n${summaryText}\n- 総重量: ${state.stats.totalWeight.toFixed(1)}g`;
+            
             try {
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
