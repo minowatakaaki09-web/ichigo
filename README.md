@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>イチゴ選別 分太AI Pro</title>
+    <!-- PWA用インラインマニフェスト（スマホアプリ化対応） -->
+    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"イチゴ選別 分太AI Pro","short_name":"分太AI","start_url":".","display":"standalone","background_color":"%230f172a","theme_color":"%230f172a","icons":[{"src":"https://img.icons8.com/color/192/strawberry.png","sizes":"192x192","type":"image/png"}]}'>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="分太AI Pro">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -319,7 +325,7 @@
 
             const diffWeight = state.baseWeight - newGross;
 
-            if (diffWeight >= 3.0) { // 3g以上の減少を1個の苺として検知
+            if (diffWeight >= 3.0) {
                 const rank = evaluateRank(diffWeight);
 
                 document.getElementById('removed-weight-display').innerText = diffWeight.toFixed(1);
@@ -329,7 +335,6 @@
 
                 speakText(`${diffWeight.toFixed(0)}グラム、${rank.name}`);
 
-                // 減算する直前のbaseWeightを記録に残す（Undo対策）
                 recordLog(diffWeight, rank, state.baseWeight);
                 updateStatsUI();
 
@@ -358,7 +363,7 @@
                 weight: weight, 
                 rankKey: rank.key, 
                 rankName: rank.name,
-                prevBase: prevBase // 取消時に戻すための基準重量を保持
+                prevBase: prevBase 
             });
             if (state.stats[rank.key] !== undefined) state.stats[rank.key]++;
             else state.stats.out++;
@@ -368,18 +373,16 @@
             renderLogsUI();
         }
 
-        // 直前の操作を取り消す（アンドゥ）機能の修正版
         function undoLastItem() {
             if (state.logs.length === 0) {
                 alert("取り消す履歴がありません。");
                 return;
             }
-            const last = state.logs.shift(); // 最新のログを削除
+            const last = state.logs.shift();
             state.stats[last.rankKey]--;
             state.stats.totalCount--;
             state.stats.totalWeight -= last.weight;
 
-            // 記録してあった「減算前の正確なベース重量」に復元する
             state.baseWeight = last.prevBase;
             document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
             document.getElementById('removed-weight-display').innerText = `(-${last.weight.toFixed(1)}) 取消`;
@@ -483,7 +486,6 @@
         }
 
         function parseScaleData(value) {
-            // バイト長が短い場合のクラッシュ（RangeError）を防ぐため3バイト以上にチェックを厳格化
             if (value.byteLength < 3) return;
             let weight = value.getUint16(1, true) / 10.0; 
             if (isNaN(weight) || weight <= 0) {
@@ -524,8 +526,8 @@
                 });
                 const data = await res.json();
                 output.innerText = data.candidates[0].content.parts[0].text;
-            } else {
-                output.innerText = "エラーが発生しました。";
+            } catch (e) {
+                output.innerText = "エラー: " + e.message;
             }
         }
     </script>
