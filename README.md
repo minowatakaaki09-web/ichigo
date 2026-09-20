@@ -3,12 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>イチゴ選別 分太AI Pro (OBEST完全対応)</title>
-    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"イチゴ選別 分太AI Pro","short_name":"分太AI","start_url":".","display":"standalone","background_color":"%230f172a","theme_color":"%230f172a","icons":[{"src":"https://img.icons8.com/color/192/strawberry.png","sizes":"192x192","type":"image/png"}]}'>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="分太AI Pro">
-    
+    <title>イチゴ選別 分太AI (OBEST完全適合版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -28,9 +23,9 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    イチゴ減算秤 <span class="bg-red-500/20 text-red-400 text-xs px-2 py-0.5 rounded-full border border-red-500/30">OBEST Pro</span>
+                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">完全適合版</span>
                 </h1>
-                <p class="text-xs text-slate-400">リアルタイム減算選別・音声ナビゲーション</p>
+                <p class="text-xs text-slate-400">バイト4直読ロジック搭載</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -83,12 +78,12 @@
                 </div>
 
                 <!-- COMMUNICATION DEBUG MONITOR -->
-                <div class="w-full mt-3 bg-slate-950 p-2 rounded-lg border border-slate-800 text-[11px] font-mono text-slate-400 flex flex-col gap-1">
-                    <div class="flex justify-between items-center text-[10px] text-slate-500 border-b border-slate-800 pb-1">
+                <div class="w-full mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-400 flex flex-col gap-1">
+                    <div class="flex justify-between items-center text-[11px] text-slate-400 border-b border-slate-800 pb-1">
                         <span><i class="fa-solid fa-bug text-amber-400"></i> OBEST通信モニター</span>
-                        <span id="raw-data-status" class="text-slate-500">待機中</span>
+                        <span id="raw-data-status" class="text-emerald-400">待機中</span>
                     </div>
-                    <div id="raw-data-debug" class="text-amber-300 overflow-x-auto whitespace-nowrap">接続後にスケールに物を載せると値が反映されます</div>
+                    <div class="text-slate-300">生データBytes: <span id="raw-bytes-display" class="text-amber-300 font-bold">[-]</span></div>
                 </div>
 
                 <!-- ACTION BUTTONS -->
@@ -123,53 +118,19 @@
             <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl border border-slate-700/80 p-4 shadow-lg">
                 <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center justify-between">
                     <span class="flex items-center gap-2"><i class="fa-solid fa-sliders text-red-400"></i> 階級・閾値設定 (下限値 g)</span>
-                    <span class="text-[10px] text-slate-400">※重い順に判定</span>
                 </h3>
                 <div class="grid grid-cols-4 sm:grid-cols-6 gap-2 text-center text-xs">
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">6玉</span>
-                        <input type="number" id="th-6" value="47.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">7玉</span>
-                        <input type="number" id="th-7" value="41.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">8玉</span>
-                        <input type="number" id="th-8" value="35.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">9玉</span>
-                        <input type="number" id="th-9" value="30.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">10玉</span>
-                        <input type="number" id="th-10" value="27.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">11玉</span>
-                        <input type="number" id="th-11" value="25.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">12玉</span>
-                        <input type="number" id="th-12" value="23.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">2L</span>
-                        <input type="number" id="th-2l" value="18.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">L</span>
-                        <input type="number" id="th-l" value="12.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">M</span>
-                        <input type="number" id="th-m" value="9.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
-                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700">
-                        <span class="block text-slate-400 font-bold mb-1">S</span>
-                        <input type="number" id="th-s" value="6.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600 focus:outline-none focus:border-red-500">
-                    </div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700"><span class="block text-slate-400 font-bold mb-1">6玉</span><input type="number" id="th-6" value="47.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600"></div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700"><span class="block text-slate-400 font-bold mb-1">7玉</span><input type="number" id="th-7" value="41.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600"></div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700"><span class="block text-slate-400 font-bold mb-1">8玉</span><input type="number" id="th-8" value="35.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600"></div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700"><span class="block text-slate-400 font-bold mb-1">9玉</span><input type="number" id="th-9" value="30.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600"></div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700"><span class="block text-slate-400 font-bold mb-1">10玉</span><input type="number" id="th-10" value="27.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600"></div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700"><span class="block text-slate-400 font-bold mb-1">11玉</span><input type="number" id="th-11" value="25.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600"></div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700"><span class="block text-slate-400 font-bold mb-1">12玉</span><input type="number" id="th-12" value="23.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600"></div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700"><span class="block text-slate-400 font-bold mb-1">2L</span><input type="number" id="th-2l" value="18.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600"></div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700"><span class="block text-slate-400 font-bold mb-1">L</span><input type="number" id="th-l" value="12.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600"></div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700"><span class="block text-slate-400 font-bold mb-1">M</span><input type="number" id="th-m" value="9.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600"></div>
+                    <div class="bg-slate-900/50 p-2 rounded-xl border border-slate-700"><span class="block text-slate-400 font-bold mb-1">S</span><input type="number" id="th-s" value="6.0" step="0.5" class="w-full bg-slate-800 text-center font-bold text-white rounded p-1 border border-slate-600"></div>
                 </div>
             </div>
 
@@ -182,24 +143,18 @@
             <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl border border-slate-700/80 p-4 shadow-lg">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="text-sm font-bold text-slate-300 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-pie text-emerald-400"></i> 本日の選別リアルタイム集計
+                        <i class="fa-solid fa-chart-pie text-emerald-400"></i> 本日の選別集計
                     </h3>
                     <span id="total-count-badge" class="bg-emerald-500/20 text-emerald-300 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/30">
                         合計: 0 個
                     </span>
                 </div>
-
-                <div class="grid grid-cols-4 gap-1.5 text-center text-xs mb-3" id="stats-grid">
-                    <!-- 動的生成 -->
-                </div>
-
+                <div class="grid grid-cols-4 gap-1.5 text-center text-xs mb-3" id="stats-grid"></div>
                 <div class="pt-2 border-t border-slate-700/80 flex justify-between items-center text-xs text-slate-400">
+                    <span>総重量: <strong id="total-weight" class="text-slate-200">0.0</strong>g</span>
                     <div class="flex gap-2">
-                        <span>総重量: <strong id="total-weight" class="text-slate-200">0.0</strong>g</span>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="copyResults()" class="text-blue-400 hover:text-blue-300 transition flex items-center gap-1"><i class="fa-solid fa-copy"></i> コピー</button>
-                        <button onclick="resetStats()" class="text-slate-500 hover:text-red-400 transition flex items-center gap-1"><i class="fa-solid fa-rotate-right"></i> リセット</button>
+                        <button onclick="copyResults()" class="text-blue-400 hover:text-blue-300 transition"><i class="fa-solid fa-copy"></i> コピー</button>
+                        <button onclick="resetStats()" class="text-slate-500 hover:text-red-400 transition"><i class="fa-solid fa-rotate-right"></i> リセット</button>
                     </div>
                 </div>
             </div>
@@ -214,21 +169,6 @@
                 </div>
             </div>
 
-            <!-- GEMINI AI ANALYSIS -->
-            <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl border border-slate-700/80 p-4 shadow-lg">
-                <h3 class="text-sm font-bold text-slate-300 mb-2 flex items-center justify-between">
-                    <span class="flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i> AI収穫分析</span>
-                    <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30">Gemini</span>
-                </h3>
-                <input type="password" id="gemini-api-key" placeholder="Gemini API Key を入力 (任意)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-200 mb-2 focus:outline-none focus:border-purple-500">
-                <button onclick="generateAiReport()" class="w-full bg-purple-600 hover:bg-purple-500 active:scale-95 text-white font-bold py-2 px-3 rounded-lg text-xs transition duration-150 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-brain"></i> 本日の選別結果をAI分析
-                </button>
-                <div id="ai-report-output" class="mt-2 p-2.5 bg-slate-900/80 rounded-lg border border-slate-700/50 text-xs text-slate-300 max-h-28 overflow-y-auto custom-scrollbar whitespace-pre-wrap leading-relaxed">
-                    APIキーを入力してボタンを押すと、収穫バランスのアドバイスをAIが生成します。
-                </div>
-            </div>
-
         </section>
 
     </main>
@@ -236,18 +176,10 @@
     <!-- SCRIPT -->
     <script>
         const RanksDef = [
-            { key: '6', name: '6玉' },
-            { key: '7', name: '7玉' },
-            { key: '8', name: '8玉' },
-            { key: '9', name: '9玉' },
-            { key: '10', name: '10玉' },
-            { key: '11', name: '11玉' },
-            { key: '12', name: '12玉' },
-            { key: '2L', name: '2Lサイズ' },
-            { key: 'L', name: 'Lサイズ' },
-            { key: 'M', name: 'Mサイズ' },
-            { key: 'S', name: 'Sサイズ' },
-            { key: 'out', name: '規格外' }
+            { key: '6', name: '6玉' }, { key: '7', name: '7玉' }, { key: '8', name: '8玉' },
+            { key: '9', name: '9玉' }, { key: '10', name: '10玉' }, { key: '11', name: '11玉' },
+            { key: '12', name: '12玉' }, { key: '2L', name: '2Lサイズ' }, { key: 'L', name: 'Lサイズ' },
+            { key: 'M', name: 'Mサイズ' }, { key: 'S', name: 'Sサイズ' }, { key: 'out', name: '規格外' }
         ];
 
         const state = {
@@ -262,7 +194,6 @@
         RanksDef.forEach(r => state.stats[r.key] = 0);
         state.stats.totalCount = 0;
         state.stats.totalWeight = 0.0;
-
         initStatsUI();
 
         function initStatsUI() {
@@ -282,7 +213,6 @@
             const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'ja-JP';
             utter.rate = 1.2;
-            utter.pitch = 1.0;
             synth.speak(utter);
         }
 
@@ -328,14 +258,13 @@
 
             if (diffWeight >= 3.0) {
                 const rank = evaluateRank(diffWeight);
-
                 document.getElementById('removed-weight-display').innerText = diffWeight.toFixed(1);
+                
                 const badge = document.getElementById('rank-badge');
                 badge.innerText = rank.name;
                 badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 border text-white bg-slate-700 border-slate-600";
 
                 speakText(`${diffWeight.toFixed(0)}グラム、${rank.name}`);
-
                 recordLog(diffWeight, rank, state.baseWeight);
                 updateStatsUI();
 
@@ -359,40 +288,24 @@
 
         function recordLog(weight, rank, prevBase) {
             const timeStr = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            state.logs.unshift({ 
-                time: timeStr, 
-                weight: weight, 
-                rankKey: rank.key, 
-                rankName: rank.name,
-                prevBase: prevBase 
-            });
+            state.logs.unshift({ time: timeStr, weight: weight, rankKey: rank.key, rankName: rank.name, prevBase: prevBase });
             if (state.stats[rank.key] !== undefined) state.stats[rank.key]++;
             else state.stats.out++;
             state.stats.totalCount++;
             state.stats.totalWeight += weight;
-
             renderLogsUI();
         }
 
         function undoLastItem() {
-            if (state.logs.length === 0) {
-                alert("取り消す履歴がありません。");
-                return;
-            }
+            if (state.logs.length === 0) { alert("取り消す履歴がありません。"); return; }
             const last = state.logs.shift();
             state.stats[last.rankKey]--;
             state.stats.totalCount--;
             state.stats.totalWeight -= last.weight;
-
             state.baseWeight = last.prevBase;
             document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
             document.getElementById('removed-weight-display').innerText = `(-${last.weight.toFixed(1)}) 取消`;
-
-            const badge = document.getElementById('rank-badge');
-            badge.innerText = "取消完了";
-            badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 bg-amber-900/80 text-amber-300 border border-amber-500/50";
-
-            speakText("直前の選別を取り消しました。");
+            speakText("取り消しました。");
             updateStatsUI();
             renderLogsUI();
         }
@@ -422,32 +335,18 @@
         }
 
         function resetStats() {
-            if(!confirm("選別集計データをリセットしますか？")) return;
+            if(!confirm("集計をリセットしますか？")) return;
             RanksDef.forEach(r => state.stats[r.key] = 0);
             state.stats.totalCount = 0;
             state.stats.totalWeight = 0.0;
             state.logs = [];
-            document.getElementById('log-container').innerHTML = '<div class="text-slate-500 text-center py-6">選別データはまだありません</div>';
+            renderLogsUI();
             updateStatsUI();
         }
 
         function copyResults() {
-            let text = "【イチゴ選別結果】\n" + RanksDef.map(r => `${r.name}: ${state.stats[r.key]}個`).join('\n') + `\n合計個数: ${state.stats.totalCount}個\n総重量: ${state.stats.totalWeight.toFixed(1)}g`;
-            navigator.clipboard.writeText(text).then(() => {
-                alert("選別結果をクリップボードにコピーしました！");
-            }).catch(err => {
-                alert("コピーに失敗しました: " + err);
-            });
-        }
-
-        async function requestWakeLock() {
-            if ('wakeLock' in navigator) {
-                try {
-                    await navigator.wakeLock.request('screen');
-                } catch (err) {
-                    console.error(err);
-                }
-            }
+            let text = "【イチゴ選別結果】\n" + RanksDef.map(r => `${r.name}: ${state.stats[r.key]}個`).join('\n') + `\n合計: ${state.stats.totalCount}個 (${state.stats.totalWeight.toFixed(1)}g)`;
+            navigator.clipboard.writeText(text).then(() => alert("コピーしました！"));
         }
 
         async function connectScale() {
@@ -464,8 +363,6 @@
                 });
 
                 const server = await state.bluetoothDevice.gatt.connect();
-                document.getElementById('conn-text').innerText = "サービス探索中";
-                
                 const services = await server.getPrimaryServices();
                 for (const service of services) {
                     const characteristics = await service.getCharacteristics();
@@ -476,48 +373,36 @@
                                 parseScaleData(e.target.value);
                             });
                         }
-                        // 起動コマンド送信
-                        if (char.properties.write || char.properties.writeWithoutResponse) {
-                            try {
-                                const cmd = new Uint8Array([0x03, 0x01, 0x01]);
-                                if (char.properties.write) await char.writeValue(cmd);
-                                else await char.writeValueWithoutResponse(cmd);
-                            } catch(e) {}
-                        }
                     }
                 }
 
                 document.getElementById('conn-text').innerText = "接続済み";
                 document.getElementById('status-indicator').className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse";
                 document.getElementById('status-text').innerText = "スケールオンライン";
-                speakText("Bluetooth接続完了");
-                requestWakeLock();
+                speakText("接続完了");
 
             } catch (error) {
                 document.getElementById('conn-text').innerText = "接続失敗";
-                alert("接続エラー: " + error.message);
+                alert("エラー: " + error.message);
             }
         }
 
         function parseScaleData(value) {
             let bytes = [];
-            for (let i = 0; i < value.byteLength; i++) {
-                bytes.push(value.getUint8(i));
-            }
-            document.getElementById('raw-data-debug').innerText = `Bytes: [${bytes.join(', ')}]`;
-            document.getElementById('raw-data-status').innerText = "受信中 " + new Date().toLocaleTimeString();
-
-            if (value.byteLength < 2) return;
+            for (let i = 0; i < value.byteLength; i++) { bytes.push(value.getUint8(i)); }
             
-            // OBESTスケール解析 (16bit リトルエンディアン)
-            let rawVal = value.getUint16(0, true);
-            let weight = rawVal / 10.0;
-            if (weight > 5000 || isNaN(weight)) {
-                weight = rawVal;
-            }
+            document.getElementById('raw-bytes-display').innerText = `[${bytes.join(', ')}]`;
+            document.getElementById('raw-data-status').innerText = "受信 " + new Date().toLocaleTimeString();
 
-            if (weight > 0) {
-                processGrossWeightUpdate(weight);
+            if (value.byteLength >= 5) {
+                // ★ここを修正：4番目のバイト（index 4）を重さ（g）として直接採用！
+                let weight = value.getUint8(4);
+                
+                // もし小数点以下や2バイト結合が必要ならここで調整可能ですが、
+                // まずはバイト4の値をそのままグラムとして扱います
+                if (weight > 0 && weight < 5000) {
+                    processGrossWeightUpdate(weight);
+                }
             }
         }
 
@@ -528,32 +413,9 @@
         function simSetBasket() {
             state.lastGrossWeight = 2000.0;
             setTareBasket();
-            requestWakeLock();
         }
         function toggleSimPanel() {
             document.getElementById('sim-panel').classList.toggle('hidden');
-        }
-
-        async function generateAiReport() {
-            const apiKey = document.getElementById('gemini-api-key').value;
-            if (!apiKey) { alert("API Key を入力してください。"); return; }
-            const output = document.getElementById('ai-report-output');
-            output.innerText = "分析中...";
-            
-            let summaryText = RanksDef.map(r => `- ${r.name}: ${state.stats[r.key]}個`).join('\n');
-            const prompt = `イチゴ選別データ分析:\n${summaryText}\n- 総重量: ${state.stats.totalWeight.toFixed(1)}g`;
-            
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                });
-                const data = await res.json();
-                output.innerText = data.candidates[0].content.parts[0].text;
-            } catch (e) {
-                output.innerText = "エラー: " + e.message;
-            }
         }
     </script>
 </body>
