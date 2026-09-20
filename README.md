@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>イチゴ選別 分太AI (完全最終修正版)</title>
+    <title>イチゴ選別 分太AI (自動スキャン最終版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,7 +23,7 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">最終修正版</span>
+                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">自動スキャン版</span>
                 </h1>
                 <p class="text-xs text-slate-400">リアルタイム直読・即時判定</p>
             </div>
@@ -80,7 +80,7 @@
                 <!-- COMMUNICATION DEBUG MONITOR -->
                 <div class="w-full mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-400 flex flex-col gap-1">
                     <div class="flex justify-between items-center text-[11px] text-slate-400 border-b border-slate-800 pb-1">
-                        <span><i class="fa-solid fa-bug text-emerald-400"></i> データモニター (完全正常化)</span>
+                        <span><i class="fa-solid fa-bug text-emerald-400"></i> データモニター (自動スキャン稼働中)</span>
                         <span id="raw-data-status" class="text-emerald-400">待機中</span>
                     </div>
                     <div class="text-slate-300">受信データBytes: <span id="raw-bytes-display" class="text-amber-300 font-bold">[-]</span></div>
@@ -110,7 +110,7 @@
                     <button onclick="simTakeBerry(17.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">17g玉</button>
                     <button onclick="simTakeBerry(52.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">大粒(52.5g)</button>
                     <button onclick="simTakeBerry(88.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">特大(88g)</button>
-                    <button onclick="simTakeBerry(120.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">超特大(120g)</button>
+                    <button onclick="simTakeBerry(104.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">104g玉</button>
                 </div>
             </div>
 
@@ -265,6 +265,9 @@
         }
 
         function processGrossWeightUpdate(newGross) {
+            // 0gなどの不正値・未送信時は前回値を維持して暴れを防止
+            if (newGross <= 0 && state.lastGrossWeight > 0) return;
+
             state.lastGrossWeight = newGross;
             document.getElementById('gross-weight').innerText = newGross.toFixed(1);
 
@@ -297,6 +300,10 @@
         }
 
         function setTareBasket() {
+            if (state.lastGrossWeight <= 0) {
+                alert("スケールの重量が0gです。カゴを乗せてからセットしてください。");
+                return;
+            }
             state.baseWeight = state.lastGrossWeight;
             state.isBasketSet = true;
             document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
@@ -421,7 +428,7 @@
             speakText("スケールが切断されました");
         }
 
-        // 【最終修正パーサー】インデックス4の数値を正しく16bitリトルエンディアンで安全に直読
+        // 【自動スキャンパーサー】バイト列のどこに重さが入っていても自動で見つけ出す
         function parseScaleData(value) {
             let bytes = [];
             for (let i = 0; i < value.byteLength; i++) { bytes.push(value.getUint8(i)); }
@@ -431,18 +438,28 @@
 
             let weight = 0;
             const len = value.byteLength;
+            let detectedWeight = null;
 
-            if (len >= 6) {
-                // インデックス4からリトルエンディアン(true)で16bit値を取得 (例: [..., 224, 0, ...] なら 224)
+            // パケット内を走査して、0より大きく5000以下の妥当な重量データを自動探索
+            for (let i = 2; i <= len - 2; i++) {
+                let val = value.getUint16(i, true);
+                if (val > 0 && val < 5000) {
+                    detectedWeight = val;
+                    break;
+                }
+            }
+
+            // もし自動探索で見つからなければ従来のインデックス4を確認
+            if (detectedWeight === null && len >= 6) {
                 let rawVal = value.getUint16(4, true);
                 if (rawVal >= 0 && rawVal < 10000) {
                     weight = rawVal;
                 }
+            } else if (detectedWeight !== null) {
+                weight = detectedWeight;
             }
 
-            if (weight > 0 || weight === 0) {
-                processGrossWeightUpdate(weight);
-            }
+            processGrossWeightUpdate(weight);
         }
 
         function simTakeBerry(weight) {
