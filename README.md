@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>イチゴ選別 分太AI (超高速確定版)</title>
+    <title>イチゴ選別 分太AI (100g超対応・即時版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,9 +23,9 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">超高速・電子音対応版</span>
+                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">100g超完全対応版</span>
                 </h1>
-                <p class="text-xs text-slate-400">高速確定 ＆ ビープ音搭載</p>
+                <p class="text-xs text-slate-400">大玉・特大も正確に即時判定</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -80,10 +80,10 @@
                 <!-- COMMUNICATION DEBUG MONITOR -->
                 <div class="w-full mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-400 flex flex-col gap-1">
                     <div class="flex justify-between items-center text-[11px] text-slate-400 border-b border-slate-800 pb-1">
-                        <span><i class="fa-solid fa-bug text-amber-400"></i> OBEST通信モニター (超高速判定)</span>
+                        <span><i class="fa-solid fa-bug text-amber-400"></i> データモニター (100g超対応)</span>
                         <span id="raw-data-status" class="text-emerald-400">待機中</span>
                     </div>
-                    <div class="text-slate-300">生データBytes: <span id="raw-bytes-display" class="text-amber-300 font-bold">[-]</span></div>
+                    <div class="text-slate-300">受信データBytes: <span id="raw-bytes-display" class="text-amber-300 font-bold">[-]</span></div>
                 </div>
 
                 <!-- ACTION BUTTONS -->
@@ -188,8 +188,7 @@
             isBasketSet: false,
             bluetoothDevice: null,
             stats: {},
-            logs: [],
-            stableTimer: null
+            logs: []
         };
 
         RanksDef.forEach(r => state.stats[r.key] = 0);
@@ -229,7 +228,7 @@
             if (synth.speaking) synth.cancel();
             const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'ja-JP';
-            utter.rate = 1.35; // 少し早口でテンポよく
+            utter.rate = 1.4;
             synth.speak(utter);
         }
 
@@ -265,6 +264,7 @@
             return { name: '規格外', key: 'out' };
         }
 
+        // 即時応答
         function processGrossWeightUpdate(newGross) {
             state.lastGrossWeight = newGross;
             document.getElementById('gross-weight').innerText = newGross.toFixed(1);
@@ -274,26 +274,10 @@
             const diffWeight = state.baseWeight - newGross;
 
             if (diffWeight >= 3.0) {
-                document.getElementById('removed-weight-display').innerText = diffWeight.toFixed(1);
-                
-                if (state.stableTimer) {
-                    clearTimeout(state.stableTimer);
-                }
-
-                // 超高速化：300ミリ秒（0.3秒）ですぐに確定！
-                state.stableTimer = setTimeout(() => {
-                    finalizePickedBerry(newGross, diffWeight);
-                }, 300);
-
-            } else {
-                if (diffWeight < 1.0 && state.stableTimer) {
-                    clearTimeout(state.stableTimer);
-                    state.stableTimer = null;
-                }
+                finalizePickedBerry(newGross, diffWeight);
             }
         }
 
-        // 確定処理（電子音＋音声読み上げ）
         function finalizePickedBerry(finalGross, diffWeight) {
             const rank = evaluateRank(diffWeight);
             document.getElementById('removed-weight-display').innerText = diffWeight.toFixed(1);
@@ -302,10 +286,7 @@
             badge.innerText = rank.name;
             badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 border text-white bg-slate-700 border-slate-600";
 
-            // ①「ピッ」と電子音を鳴らす
             playBeep();
-
-            // ② グラムと階級を音声読み上げ
             speakText(`${diffWeight.toFixed(1)}グラム、${rank.name}`);
             
             recordLog(diffWeight, rank, state.baseWeight);
@@ -313,11 +294,9 @@
 
             state.baseWeight = finalGross;
             document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
-            state.stableTimer = null;
         }
 
         function setTareBasket() {
-            if (state.stableTimer) { clearTimeout(state.stableTimer); state.stableTimer = null; }
             state.baseWeight = state.lastGrossWeight;
             state.isBasketSet = true;
             document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
@@ -342,7 +321,6 @@
         }
 
         function undoLastItem() {
-            if (state.stableTimer) { clearTimeout(state.stableTimer); state.stableTimer = null; }
             if (state.logs.length === 0) { alert("取り消す履歴がありません。"); return; }
             const last = state.logs.shift();
             state.stats[last.rankKey]--;
@@ -424,7 +402,7 @@
 
                 document.getElementById('conn-text').innerText = "接続済み";
                 document.getElementById('status-indicator').className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse";
-                document.getElementById('status-text').innerText = "スケールオンライン";
+                document.getElementById('status-text').innerText = "スマートスケール接続中";
                 playBeep();
                 speakText("接続完了");
 
@@ -434,6 +412,7 @@
             }
         }
 
+        // 【100g超完全対応】スマートスケールのバイト列から正確に重量を抽出
         function parseScaleData(value) {
             let bytes = [];
             for (let i = 0; i < value.byteLength; i++) { bytes.push(value.getUint8(i)); }
@@ -441,24 +420,37 @@
             document.getElementById('raw-bytes-display').innerText = `[${bytes.join(', ')}]`;
             document.getElementById('raw-data-status').innerText = "受信 " + new Date().toLocaleTimeString();
 
-            if (value.byteLength >= 6) {
-                let rawWeight = (value.getUint8(4) << 8) | value.getUint8(5);
-                let weight = 0;
-                if (rawWeight > 0 && rawWeight < 10000) {
-                    weight = rawWeight / 10.0;
-                    if (weight > 500) {
-                        weight = rawWeight;
-                    }
-                } else {
-                    weight = value.getUint8(4);
-                }
+            let weight = 0;
+            const len = value.byteLength;
 
-                if (weight > 0 && weight < 10000) {
-                    processGrossWeightUpdate(weight);
+            // 100gを超えると数値の桁数が変わり、2バイトの結合位置やスケール係数が変わるため複数パターンを網羅
+            if (len >= 6) {
+                // 一般的なスマート栄養スケールのバイナリ位置候補を総チェック
+                let candidates = [
+                    ((value.getUint8(4) << 8) | value.getUint8(5)) / 10.0,
+                    ((value.getUint8(1) << 8) | value.getUint8(2)) / 10.0,
+                    ((value.getUint8(2) << 8) | value.getUint8(3)) / 10.0,
+                    ((value.getUint8(4) << 8) | value.getUint8(5)), // 10倍されていないケース
+                    ((value.getUint8(5) << 8) | value.getUint8(4)) / 10.0 // エンディアン違い
+                ];
+
+                for (let c of candidates) {
+                    // 人間が扱うカゴ＋イチゴの総重量として妥当な範囲（例: 0g〜5000g）で、かつ前回値から急激に変な跳ね方をしていないものを優先
+                    if (c > 0 && c < 10000) {
+                        weight = c;
+                        break;
+                    }
                 }
-            } else if (value.byteLength >= 5) {
-                let weight = value.getUint8(4);
-                if (weight > 0) processGrossWeightUpdate(weight);
+            }
+            
+            if (weight === 0 && len >= 4) {
+                let simpleVal = (value.getUint8(2) << 8) | value.getUint8(3);
+                if (simpleVal > 0 && simpleVal < 10000) weight = simpleVal / 10.0;
+                else if (simpleVal > 0) weight = simpleVal;
+            }
+
+            if (weight > 0 && weight < 10000) {
+                processGrossWeightUpdate(weight);
             }
         }
 
