@@ -2,277 +2,149 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>セルフカット・スマートミラー</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBEST 完全覚醒モニター</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-        body {
-            background-color: #000;
-            color: #fff;
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-        }
-        #app-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #webcam {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transform: scaleX(-1); /* 鏡モード（左右反転） */
-        }
-        #overlay-canvas {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            transform: scaleX(-1);
-        }
-        /* 操作パネル */
-        .control-panel {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(15, 15, 15, 0.9);
-            backdrop-filter: blur(15px);
-            padding: 16px 20px;
-            border-radius: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            width: 92%;
-            max-width: 400px;
-            z-index: 10;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        .control-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-        }
-        .control-row label {
-            color: #aaa;
-        }
-        .control-row span {
-            color: #00ffcc;
-            font-weight: bold;
-            font-size: 15px;
-        }
-        input[type="range"] {
-            width: 100%;
-            height: 8px;
-            margin-top: 6px;
-            accent-color: #00ffcc;
-        }
-        .btn-group {
-            display: flex;
-            gap: 8px;
-        }
-        button.mode-btn {
-            flex: 1;
-            padding: 12px 0;
-            border: none;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.2s;
-        }
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.15);
-            color: #fff;
-        }
-        .btn-active {
-            background: #00ffcc;
-            color: #000;
-        }
-        /* カメラ強制起動画面 */
-        #start-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #111;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 30;
-            gap: 16px;
-            padding: 24px;
-            text-align: center;
-        }
-        #start-btn {
-            background: #00ffcc;
-            color: #000;
-            font-size: 18px;
-            padding: 16px 40px;
-            border-radius: 30px;
-            border: none;
-            font-weight: bold;
-            box-shadow: 0 4px 20px rgba(0,255,204,0.4);
-        }
+        body { font-family: sans-serif; padding: 20px; background: #1e272e; color: #f5f6fa; }
+        .card { background: #2f3640; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        button { background: #e84118; color: white; border: none; padding: 16px 20px; font-size: 18px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
+        button:active { background: #c23616; }
+        pre { background: #192a56; color: #00d2d3; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; max-height: 220px; }
+        .big-weight { font-size: 48px; font-weight: bold; color: #4cd137; text-align: center; margin: 10px 0; }
+        .status { font-weight: bold; color: #fbc531; margin-top: 8px; text-align: center; font-size: 16px; }
     </style>
 </head>
 <body>
 
-<div id="app-container">
-    <!-- カメラ起動ボタン -->
-    <div id="start-screen">
-        <h2>セルフカット・スマートミラー</h2>
-        <p style="color: #aaa; font-size: 13px; line-height: 1.5;">下のボタンを押すとカメラが起動します<br>（許可ポップアップが出たら「許可」を押してください）</p>
-        <button id="start-btn" onclick="initCamera()">ミラーを開始する</button>
+    <div class="card">
+        <h2>🔌 OBEST 強制覚醒＆接続</h2>
+        <button id="connectBtn">スケールを叩き起こして接続する</button>
+        <div class="status" id="status">未接続</div>
     </div>
 
-    <video id="webcam" autoplay playsinline muted></video>
-    <canvas id="overlay-canvas"></canvas>
-
-    <!-- 操作パネル -->
-    <div class="control-panel" id="panel" style="display: none;">
-        <div class="control-row">
-            <label>スタイル</label>
-            <span id="mode-label">フェード (ロー)</span>
-        </div>
-        <div class="btn-group">
-            <button class="mode-btn btn-active" id="btn-low" onclick="setMode('fadeLow')">ロー</button>
-            <button class="mode-btn btn-secondary" id="btn-high" onclick="setMode('fadeHigh')">ハイ</button>
-            <button class="mode-btn btn-secondary" id="btn-two" onclick="setMode('twoblock')">ツーブロ</button>
-        </div>
-
-        <div>
-            <div class="control-row">
-                <label>高さ調整</label>
-                <span id="pos-val">50%</span>
-            </div>
-            <input type="range" id="posSlider" min="10" max="90" value="50" oninput="updatePosition(this.value)">
-        </div>
+    <div class="card">
+        <h2>⚖️ 測定値モニター</h2>
+        <div class="big-weight" id="weightDisplay">-- g</div>
     </div>
-</div>
+
+    <div class="card">
+        <h2>📡 受信生データ (Bytes)</h2>
+        <pre id="logArea">ここにデータが流れてきます...</pre>
+    </div>
 
 <script>
-    const video = document.getElementById('webcam');
-    const canvas = document.getElementById('overlay-canvas');
-    const ctx = canvas.getContext('2d');
-    const startScreen = document.getElementById('start-screen');
-    const panel = document.getElementById('panel');
-    
-    let currentMode = 'fadeLow';
-    let linePosition = 0.5;
+    let bluetoothDevice = null;
 
-    async function initCamera() {
+    const connectBtn = document.getElementById('connectBtn');
+    const statusEl = document.getElementById('status');
+    const weightDisplay = document.getElementById('weightDisplay');
+    const logArea = document.getElementById('logArea');
+
+    function log(text) {
+        console.log(text);
+        logArea.textContent += text + "\n";
+        logArea.scrollTop = logArea.scrollHeight;
+    }
+
+    connectBtn.addEventListener('click', async () => {
         try {
-            const constraints = {
-                video: {
-                    facingMode: 'user',
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                },
-                audio: false
-            };
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
-            video.srcObject = stream;
-            await video.play();
+            log("🔍 OBESTスケールをスキャン中...");
+            statusEl.textContent = "スキャン中...";
             
-            startScreen.style.display = 'none';
-            panel.style.display = 'flex';
+            // よく使われるサービスUUIDを網羅
+            bluetoothDevice = await navigator.bluetooth.requestDevice({
+                acceptAllDevices: true,
+                optionalServices: [
+                    '0000ffe0-0000-1000-8000-00805f9b34fb',
+                    '0000fff0-0000-1000-8000-00805f9b34fb',
+                    '0000ff00-0000-1000-8000-00805f9b34fb',
+                    '0000181d-0000-1000-8000-00805f9b34fb',
+                    '0000180d-0000-1000-8000-00805f9b34fb',
+                    '000018f0-0000-1000-8000-00805f9b34fb',
+                    '0000fff1-0000-1000-8000-00805f9b34fb',
+                    '0000ffe1-0000-1000-8000-00805f9b34fb'
+                ]
+            });
+
+            log(`✅ 選択: ${bluetoothDevice.name || 'OBESTスケール'}`);
+            statusEl.textContent = "GATT接続中...";
+
+            const server = await bluetoothDevice.gatt.connect();
+            log("✅ サーバー接続成功！");
+            statusEl.textContent = "サービス解析＆起動中...";
+
+            const services = await server.getPrimaryServices();
             
-            resizeCanvas();
-            requestAnimationFrame(renderLoop);
-        } catch (err) {
-            alert('カメラの起動に失敗しました。Safariで開いているか、カメラの権限を確認してください。');
-            console.error(err);
+            for (const service of services) {
+                log(`[Service] ${service.uuid}`);
+                try {
+                    const characteristics = await service.getCharacteristics();
+                    for (const char of characteristics) {
+                        let props = [];
+                        if (char.properties.read) props.push('Read');
+                        if (char.properties.write) props.push('Write');
+                        if (char.properties.writeWithoutResponse) props.push('WriteNoResp');
+                        if (char.properties.notify) props.push('Notify');
+                        if (char.properties.indicate) props.push('Indicate');
+
+                        log(`  └ [Char] ${char.uuid} [ ${props.join(', ')} ]`);
+
+                        // 1. データの受信購読を設定
+                        if (char.properties.notify || char.properties.indicate) {
+                            try {
+                                await char.startNotifications();
+                                char.addEventListener('characteristicvaluechanged', (e) => {
+                                    const val = e.target.value;
+                                    const bytes = [];
+                                    for (let i = 0; i < val.byteLength; i++) {
+                                        bytes.push(val.getUint8(i));
+                                    }
+                                    log(`📦 爆速受信! Bytes: [${bytes.join(', ')}]`);
+                                    
+                                    // 簡易的な数値表示のテスト（仮で配列の長さを出すなど）
+                                    weightDisplay.textContent = `${bytes.length} bytes`;
+                                });
+                                log(`🔔 購読成功: ${char.uuid.slice(0,8)}...`);
+                            } catch (err) {
+                                log(`⚠️ 購読失敗: ${err.message}`);
+                            }
+                        }
+
+                        // 2. 書き込みができる場所があれば、スケールを目覚めさせるコマンドを連打する
+                        if (char.properties.write || char.properties.writeWithoutResponse) {
+                            try {
+                                const wakeCmds = [
+                                    new Uint8Array([0x03, 0x01, 0x01]),
+                                    new Uint8Array([0xAA, 0x01, 0x00]),
+                                    new Uint8Array([0x55, 0x01, 0x01]),
+                                    new Uint8Array([0x01, 0x03, 0x00, 0x01, 0x00, 0x10])
+                                ];
+                                for (const cmd of wakeCmds) {
+                                    try {
+                                        if (char.properties.write) {
+                                            await char.writeValue(cmd);
+                                        } else {
+                                            await char.writeValueWithoutResponse(cmd);
+                                        }
+                                        log(`⚡ 起動コマンド送信: ${char.uuid.slice(0,8)}...`);
+                                    } catch(e) {}
+                                }
+                            } catch (err) {}
+                        }
+                    }
+                } catch (err) {
+                    log(`  └ ❌ エラー: ${err.message}`);
+                }
+            }
+
+            statusEl.textContent = "起動完了！スケールに乗せてみて";
+            log(`🚀 準備完了！スケールの上に何かを乗せてみてください。`);
+
+        } catch (error) {
+            log(`❌ エラー発生: ${error}`);
+            statusEl.textContent = "接続エラー";
         }
-    }
-
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-
-    function setMode(mode) {
-        currentMode = mode;
-        const label = document.getElementById('mode-label');
-        
-        document.getElementById('btn-low').className = 'mode-btn btn-secondary';
-        document.getElementById('btn-high').className = 'mode-btn btn-secondary';
-        document.getElementById('btn-two').className = 'mode-btn btn-secondary';
-
-        if (mode === 'fadeLow') {
-            label.innerText = "フェード (ロー)";
-            document.getElementById('btn-low').className = 'mode-btn btn-active';
-        } else if (mode === 'fadeHigh') {
-            label.innerText = "フェード (ハイ)";
-            document.getElementById('btn-high').className = 'mode-btn btn-active';
-        } else if (mode === 'twoblock') {
-            label.innerText = "ツーブロック分け目";
-            document.getElementById('btn-two').className = 'mode-btn btn-active';
-        }
-    }
-
-    function updatePosition(val) {
-        linePosition = val / 100;
-        document.getElementById('pos-val').innerText = val + '%';
-    }
-
-    function renderLoop() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const w = canvas.width;
-        const h = canvas.height;
-        const targetY = h * linePosition;
-
-        ctx.lineWidth = 4;
-
-        if (currentMode === 'fadeLow' || currentMode === 'fadeHigh') {
-            ctx.strokeStyle = '#00ffcc';
-            ctx.beginPath();
-            ctx.moveTo(w * 0.05, targetY);
-            ctx.lineTo(w * 0.95, targetY);
-            ctx.stroke();
-
-            ctx.strokeStyle = 'rgba(0, 255, 204, 0.45)';
-            ctx.beginPath();
-            ctx.arc(w / 2, targetY - 45, w * 0.38, 0, Math.PI);
-            ctx.stroke();
-        } else if (currentMode === 'twoblock') {
-            ctx.strokeStyle = '#ff00aa';
-            ctx.beginPath();
-            ctx.moveTo(w * 0.12, targetY + 30);
-            ctx.quadraticCurveTo(w * 0.5, targetY - 70, w * 0.88, targetY + 30);
-            ctx.stroke();
-        }
-
-        // 耳まわりのセーフティゾーン
-        ctx.strokeStyle = '#00ff00';
-        ctx.lineWidth = 3;
-        ctx.setLineDash([6, 6]);
-        ctx.beginPath();
-        ctx.arc(w * 0.22, h * 0.52, 55, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(w * 0.78, h * 0.52, 55, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        requestAnimationFrame(renderLoop);
-    }
+    });
 </script>
-
 </body>
 </html>
