@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+　<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>イチゴ選別 分太AI (完全安定版)</title>
+    <title>イチゴ選別 分太AI (完全安定・5g以下規格外対応版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -107,10 +107,10 @@
                     <button onclick="toggleSimPanel()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="grid grid-cols-4 gap-2">
+                    <button onclick="simTakeBerry(4.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">4g玉(規格外)</button>
                     <button onclick="simTakeBerry(17.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">17g玉</button>
                     <button onclick="simTakeBerry(52.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">大粒(52.5g)</button>
                     <button onclick="simTakeBerry(88.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">特大(88g)</button>
-                    <button onclick="simTakeBerry(104.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">104g玉</button>
                 </div>
             </div>
 
@@ -249,6 +249,9 @@
         }
 
         function evaluateRank(weight) {
+            // ★ 5g以下の重さのものは確実に「規格外」とする
+            if (weight <= 5.0) return { name: '規格外', key: 'out' };
+
             const th = getThresholds();
             if (weight >= th['6']) return { name: '6玉', key: '6' };
             if (weight >= th['7']) return { name: '7玉', key: '7' };
@@ -274,7 +277,8 @@
 
             const diffWeight = state.baseWeight - newGross;
 
-            if (diffWeight >= 3.0) {
+            // 1.5g以上の減少があれば判定（4gの小粒も確実に拾う）
+            if (diffWeight >= 1.5) {
                 finalizePickedBerry(newGross, diffWeight);
             }
         }
@@ -426,7 +430,7 @@
             speakText("スケールが切断されました");
         }
 
-        // 【完全安定パーサー】常にインデックス3・4の2バイトをビッグエンディアンで直読
+        // 常にインデックス3・4の2バイトを確実にビッグエンディアンで読み取る
         function parseScaleData(value) {
             let bytes = [];
             for (let i = 0; i < value.byteLength; i++) { bytes.push(value.getUint8(i)); }
@@ -436,7 +440,6 @@
 
             let weight = 0;
             if (value.byteLength >= 5) {
-                // インデックス3（上位）と 4（下位）を結合してそのまま重量にする
                 weight = value.getUint16(3, false);
             }
 
