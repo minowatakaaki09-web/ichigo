@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>イチゴ選別 分太AI (電子音＆音声完全版)</title>
+    <title>イチゴ選別 分太AI (超高速確定版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,9 +23,9 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">電子音・音声対応版</span>
+                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">超高速・電子音対応版</span>
                 </h1>
-                <p class="text-xs text-slate-400">1秒安定確定 ＆ ビープ音搭載</p>
+                <p class="text-xs text-slate-400">高速確定 ＆ ビープ音搭載</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -80,7 +80,7 @@
                 <!-- COMMUNICATION DEBUG MONITOR -->
                 <div class="w-full mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-400 flex flex-col gap-1">
                     <div class="flex justify-between items-center text-[11px] text-slate-400 border-b border-slate-800 pb-1">
-                        <span><i class="fa-solid fa-bug text-amber-400"></i> OBEST通信モニター (1秒待機判定)</span>
+                        <span><i class="fa-solid fa-bug text-amber-400"></i> OBEST通信モニター (超高速判定)</span>
                         <span id="raw-data-status" class="text-emerald-400">待機中</span>
                     </div>
                     <div class="text-slate-300">生データBytes: <span id="raw-bytes-display" class="text-amber-300 font-bold">[-]</span></div>
@@ -229,7 +229,7 @@
             if (synth.speaking) synth.cancel();
             const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'ja-JP';
-            utter.rate = 1.25; 
+            utter.rate = 1.35; // 少し早口でテンポよく
             synth.speak(utter);
         }
 
@@ -280,10 +280,10 @@
                     clearTimeout(state.stableTimer);
                 }
 
-                // 「安定確認中」の文字やアニメーションを削除し、直前の表示をそのまま維持して1秒待機
+                // 超高速化：300ミリ秒（0.3秒）ですぐに確定！
                 state.stableTimer = setTimeout(() => {
                     finalizePickedBerry(newGross, diffWeight);
-                }, 1000);
+                }, 300);
 
             } else {
                 if (diffWeight < 1.0 && state.stableTimer) {
@@ -293,7 +293,7 @@
             }
         }
 
-        // 1秒静止後の確定処理（電子音＋音声読み上げ）
+        // 確定処理（電子音＋音声読み上げ）
         function finalizePickedBerry(finalGross, diffWeight) {
             const rank = evaluateRank(diffWeight);
             document.getElementById('removed-weight-display').innerText = diffWeight.toFixed(1);
@@ -305,7 +305,7 @@
             // ①「ピッ」と電子音を鳴らす
             playBeep();
 
-            // ② グラムと階級を必ずセットで音声読み上げ
+            // ② グラムと階級を音声読み上げ
             speakText(`${diffWeight.toFixed(1)}グラム、${rank.name}`);
             
             recordLog(diffWeight, rank, state.baseWeight);
