@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>イチゴ選別 分太AI (完全対応版)</title>
+    <title>イチゴ選別 分太AI (完全安定版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,7 +23,7 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">完全対応版</span>
+                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">完全安定版</span>
                 </h1>
                 <p class="text-xs text-slate-400">リアルタイム直読・即時判定</p>
             </div>
@@ -80,7 +80,7 @@
                 <!-- COMMUNICATION DEBUG MONITOR -->
                 <div class="w-full mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-400 flex flex-col gap-1">
                     <div class="flex justify-between items-center text-[11px] text-slate-400 border-b border-slate-800 pb-1">
-                        <span><i class="fa-solid fa-bug text-emerald-400"></i> データモニター (ビッグエンディアン対応)</span>
+                        <span><i class="fa-solid fa-bug text-emerald-400"></i> データモニター (インデックス3-4固定)</span>
                         <span id="raw-data-status" class="text-emerald-400">待機中</span>
                     </div>
                     <div class="text-slate-300">受信データBytes: <span id="raw-bytes-display" class="text-amber-300 font-bold">[-]</span></div>
@@ -426,7 +426,7 @@
             speakText("スケールが切断されました");
         }
 
-        // 【ビッグエンディアン対応パーサー】上位バイト先頭で正確に重量を抽出
+        // 【完全安定パーサー】常にインデックス3・4の2バイトをビッグエンディアンで直読
         function parseScaleData(value) {
             let bytes = [];
             for (let i = 0; i < value.byteLength; i++) { bytes.push(value.getUint8(i)); }
@@ -435,26 +435,9 @@
             document.getElementById('raw-data-status').innerText = "受信 " + new Date().toLocaleTimeString();
 
             let weight = 0;
-            const len = value.byteLength;
-            let detectedWeight = null;
-
-            // ビッグエンディアン (false) でパケット内を走査して妥当な重量を探す
-            for (let i = 2; i <= len - 2; i++) {
-                let val = value.getUint16(i, false);
-                if (val > 0 && val < 5000) {
-                    detectedWeight = val;
-                    break;
-                }
-            }
-
-            // 見つからなければインデックス3を直接ビッグエンディアンで確認
-            if (detectedWeight === null && len >= 5) {
-                let rawVal = value.getUint16(3, false);
-                if (rawVal >= 0 && rawVal < 10000) {
-                    weight = rawVal;
-                }
-            } else if (detectedWeight !== null) {
-                weight = detectedWeight;
+            if (value.byteLength >= 5) {
+                // インデックス3（上位）と 4（下位）を結合してそのまま重量にする
+                weight = value.getUint16(3, false);
             }
 
             processGrossWeightUpdate(weight);
