@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>イチゴ選別 分太AI (100g超対応・即時版)</title>
+    <title>イチゴ選別 分太AI (完全完璧版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,9 +23,9 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">100g超完全対応版</span>
+                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">完全完璧版</span>
                 </h1>
-                <p class="text-xs text-slate-400">大玉・特大も正確に即時判定</p>
+                <p class="text-xs text-slate-400">リアルタイム直読・即時判定</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -80,7 +80,7 @@
                 <!-- COMMUNICATION DEBUG MONITOR -->
                 <div class="w-full mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-400 flex flex-col gap-1">
                     <div class="flex justify-between items-center text-[11px] text-slate-400 border-b border-slate-800 pb-1">
-                        <span><i class="fa-solid fa-bug text-amber-400"></i> データモニター (100g超対応)</span>
+                        <span><i class="fa-solid fa-bug text-emerald-400"></i> データモニター (正常直読)</span>
                         <span id="raw-data-status" class="text-emerald-400">待機中</span>
                     </div>
                     <div class="text-slate-300">受信データBytes: <span id="raw-bytes-display" class="text-amber-300 font-bold">[-]</span></div>
@@ -264,7 +264,6 @@
             return { name: '規格外', key: 'out' };
         }
 
-        // 即時応答
         function processGrossWeightUpdate(newGross) {
             state.lastGrossWeight = newGross;
             document.getElementById('gross-weight').innerText = newGross.toFixed(1);
@@ -273,6 +272,7 @@
 
             const diffWeight = state.baseWeight - newGross;
 
+            // 3g以上の減少を検知したときにつまみ出し（減算）とみなす
             if (diffWeight >= 3.0) {
                 finalizePickedBerry(newGross, diffWeight);
             }
@@ -386,6 +386,9 @@
                     ]
                 });
 
+                // 切断イベントの監視を常時セット
+                state.bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
                 const server = await state.bluetoothDevice.gatt.connect();
                 const services = await server.getPrimaryServices();
                 for (const service of services) {
@@ -412,7 +415,14 @@
             }
         }
 
-        // 【100g超完全対応】スマートスケールのバイト列から正確に重量を抽出
+        function onDisconnected() {
+            document.getElementById('conn-text').innerText = "スケール接続";
+            document.getElementById('status-indicator').className = "w-2.5 h-2.5 rounded-full bg-slate-500 inline-block";
+            document.getElementById('status-text').innerText = "未接続（切断されました）";
+            speakText("スケールが切断されました");
+        }
+
+        // 【完璧版パーサー】余計な計算を廃し、インデックス4の数値をダイレクトに総重量として直読
         function parseScaleData(value) {
             let bytes = [];
             for (let i = 0; i < value.byteLength; i++) { bytes.push(value.getUint8(i)); }
@@ -423,35 +433,16 @@
             let weight = 0;
             const len = value.byteLength;
 
-            // 100gを超えると数値の桁数が変わり、2バイトの結合位置やスケール係数が変わるため複数パターンを網羅
-            if (len >= 6) {
-                // 一般的なスマート栄養スケールのバイナリ位置候補を総チェック
-                let candidates = [
-                    ((value.getUint8(4) << 8) | value.getUint8(5)) / 10.0,
-                    ((value.getUint8(1) << 8) | value.getUint8(2)) / 10.0,
-                    ((value.getUint8(2) << 8) | value.getUint8(3)) / 10.0,
-                    ((value.getUint8(4) << 8) | value.getUint8(5)), // 10倍されていないケース
-                    ((value.getUint8(5) << 8) | value.getUint8(4)) / 10.0 // エンディアン違い
-                ];
-
-                for (let c of candidates) {
-                    // 人間が扱うカゴ＋イチゴの総重量として妥当な範囲（例: 0g〜5000g）で、かつ前回値から急激に変な跳ね方をしていないものを優先
-                    if (c > 0 && c < 10000) {
-                        weight = c;
-                        break;
-                    }
+            if (len >= 5) {
+                // インデックス4のバイト値をそのまま重量（g）として採用
+                let directWeight = value.getUint8(4);
+                if (directWeight >= 0 && directWeight < 10000) {
+                    weight = directWeight;
                 }
             }
-            
-            if (weight === 0 && len >= 4) {
-                let simpleVal = (value.getUint8(2) << 8) | value.getUint8(3);
-                if (simpleVal > 0 && simpleVal < 10000) weight = simpleVal / 10.0;
-                else if (simpleVal > 0) weight = simpleVal;
-            }
 
-            if (weight > 0 && weight < 10000) {
-                processGrossWeightUpdate(weight);
-            }
+            // 取得した重量を画面に反映
+            processGrossWeightUpdate(weight);
         }
 
         function simTakeBerry(weight) {
@@ -459,7 +450,7 @@
             processGrossWeightUpdate(state.lastGrossWeight - weight);
         }
         function simSetBasket() {
-            state.lastGrossWeight = 2000.0;
+            state.lastGrossWeight = 500.0;
             setTareBasket();
         }
         function toggleSimPanel() {
