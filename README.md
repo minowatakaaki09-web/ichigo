@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>イチゴ選別 分太AI (自動スキャン最終版)</title>
+    <title>イチゴ選別 分太AI (完全対応版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,7 +23,7 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">自動スキャン版</span>
+                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">完全対応版</span>
                 </h1>
                 <p class="text-xs text-slate-400">リアルタイム直読・即時判定</p>
             </div>
@@ -80,7 +80,7 @@
                 <!-- COMMUNICATION DEBUG MONITOR -->
                 <div class="w-full mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-400 flex flex-col gap-1">
                     <div class="flex justify-between items-center text-[11px] text-slate-400 border-b border-slate-800 pb-1">
-                        <span><i class="fa-solid fa-bug text-emerald-400"></i> データモニター (自動スキャン稼働中)</span>
+                        <span><i class="fa-solid fa-bug text-emerald-400"></i> データモニター (ビッグエンディアン対応)</span>
                         <span id="raw-data-status" class="text-emerald-400">待機中</span>
                     </div>
                     <div class="text-slate-300">受信データBytes: <span id="raw-bytes-display" class="text-amber-300 font-bold">[-]</span></div>
@@ -265,7 +265,6 @@
         }
 
         function processGrossWeightUpdate(newGross) {
-            // 0gなどの不正値・未送信時は前回値を維持して暴れを防止
             if (newGross <= 0 && state.lastGrossWeight > 0) return;
 
             state.lastGrossWeight = newGross;
@@ -275,7 +274,6 @@
 
             const diffWeight = state.baseWeight - newGross;
 
-            // 3g以上の減少を検知したときにつまみ出し（減算）とみなす
             if (diffWeight >= 3.0) {
                 finalizePickedBerry(newGross, diffWeight);
             }
@@ -428,7 +426,7 @@
             speakText("スケールが切断されました");
         }
 
-        // 【自動スキャンパーサー】バイト列のどこに重さが入っていても自動で見つけ出す
+        // 【ビッグエンディアン対応パーサー】上位バイト先頭で正確に重量を抽出
         function parseScaleData(value) {
             let bytes = [];
             for (let i = 0; i < value.byteLength; i++) { bytes.push(value.getUint8(i)); }
@@ -440,18 +438,18 @@
             const len = value.byteLength;
             let detectedWeight = null;
 
-            // パケット内を走査して、0より大きく5000以下の妥当な重量データを自動探索
+            // ビッグエンディアン (false) でパケット内を走査して妥当な重量を探す
             for (let i = 2; i <= len - 2; i++) {
-                let val = value.getUint16(i, true);
+                let val = value.getUint16(i, false);
                 if (val > 0 && val < 5000) {
                     detectedWeight = val;
                     break;
                 }
             }
 
-            // もし自動探索で見つからなければ従来のインデックス4を確認
-            if (detectedWeight === null && len >= 6) {
-                let rawVal = value.getUint16(4, true);
+            // 見つからなければインデックス3を直接ビッグエンディアンで確認
+            if (detectedWeight === null && len >= 5) {
+                let rawVal = value.getUint16(3, false);
                 if (rawVal >= 0 && rawVal < 10000) {
                     weight = rawVal;
                 }
