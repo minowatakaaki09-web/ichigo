@@ -42,51 +42,56 @@
         <section class="md:col-span-7 flex flex-col gap-4">
 
             <!-- MAIN DISPLAY -->
-            <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl border border-slate-700/80 p-6 shadow-xl flex flex-col items-center justify-center relative overflow-hidden">
+            <div class="bg-slate-800/80 backdrop-blur-md rounded-2xl border border-slate-700/80 p-5 shadow-xl flex flex-col items-center justify-center relative overflow-hidden">
                 <div class="absolute top-3 left-4 text-xs font-bold text-slate-400 flex items-center gap-1">
                     <span id="status-indicator" class="w-2.5 h-2.5 rounded-full bg-slate-500 inline-block"></span>
                     <span id="status-text">未接続（模擬テスト可）</span>
                 </div>
 
                 <!-- RANK DISPLAY -->
-                <div class="mt-4 text-center">
+                <div class="mt-3 text-center">
                     <div id="rank-badge" class="inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 bg-slate-700 text-slate-400 border border-slate-600">
                         ----
                     </div>
                 </div>
 
-                <!-- WEIGHT DISPLAY -->
-                <div class="my-5 text-center">
-                    <div class="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">今回引いたイチゴの重さ</div>
-                    <div class="flex items-baseline justify-center gap-2">
-                        <span id="removed-weight-display" class="text-6xl md:text-7xl font-black tracking-tight text-white font-mono">0.0</span>
-                        <span class="text-2xl font-bold text-slate-400">g</span>
+                <!-- WEIGHT & PREV TOTAL DISPLAY (SIDE BY SIDE) -->
+                <div class="w-full my-4 grid grid-cols-2 gap-3 bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 text-center">
+                    <div class="border-r border-slate-700/80 pr-2">
+                        <div class="text-[11px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">今回引いた重さ</div>
+                        <div class="flex items-baseline justify-center gap-1">
+                            <span id="removed-weight-display" class="text-4xl md:text-5xl font-black tracking-tight text-white font-mono">0.0</span>
+                            <span class="text-lg font-bold text-slate-400">g</span>
+                        </div>
+                    </div>
+                    <div class="pl-2">
+                        <div class="text-[11px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">直前の総量</div>
+                        <div class="flex items-baseline justify-center gap-1">
+                            <span id="prev-base-weight" class="text-3xl md:text-4xl font-black tracking-tight text-amber-400 font-mono">0.0</span>
+                            <span class="text-base font-bold text-slate-400">g</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- SUB INFO -->
-                <div class="w-full bg-slate-900/60 rounded-xl p-3 grid grid-cols-3 gap-2 text-center border border-slate-700/50 text-xs">
+                <div class="w-full bg-slate-900/40 rounded-xl p-2.5 grid grid-cols-2 gap-2 text-center border border-slate-700/40 text-xs">
                     <div>
                         <div class="text-slate-500 font-medium">スケール現在値</div>
                         <div class="text-slate-200 font-bold font-mono text-sm"><span id="gross-weight">0.0</span> g</div>
                     </div>
-                    <div class="border-x border-slate-700/80 px-1">
-                        <div class="text-slate-500 font-medium">直前の総量</div>
-                        <div class="text-amber-400 font-bold font-mono text-sm"><span id="prev-base-weight">0.0</span> g</div>
-                    </div>
-                    <div>
+                    <div class="border-l border-slate-700/80 pl-1">
                         <div class="text-slate-500 font-medium">現在の基準重量</div>
                         <div class="text-slate-200 font-bold font-mono text-sm"><span id="base-weight">0.0</span> g</div>
                     </div>
                 </div>
 
                 <!-- COMMUNICATION DEBUG MONITOR -->
-                <div class="w-full mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-400 flex flex-col gap-1">
+                <div class="w-full mt-3 bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-xs font-mono text-slate-400 flex flex-col gap-1">
                     <div class="flex justify-between items-center text-[11px] text-slate-400 border-b border-slate-800 pb-1">
                         <span><i class="fa-solid fa-bug text-emerald-400"></i> データモニター (インデックス3-4固定)</span>
                         <span id="raw-data-status" class="text-emerald-400">待機中</span>
                     </div>
-                    <div class="text-slate-300">受信データBytes: <span id="raw-bytes-display" class="text-amber-300 font-bold">[-]</span></div>
+                    <div class="text-slate-300 truncate">受信Bytes: <span id="raw-bytes-display" class="text-amber-300 font-bold">[-]</span></div>
                 </div>
 
                 <!-- ACTION BUTTONS -->
@@ -155,19 +160,19 @@
                 <div class="grid grid-cols-4 gap-1.5 text-center text-xs mb-3" id="stats-grid"></div>
                 
                 <!-- PACK SUMMARY (1パック 280g) -->
-                <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-700/80 mb-3 space-y-2">
-                    <div class="text-xs font-bold text-slate-300 flex items-center justify-between border-b border-slate-800 pb-1">
-                        <span><i class="fa-solid fa-box-open text-amber-400"></i> パック換算 (1パック 280g基準)</span>
+                <div class="bg-slate-900/80 p-3.5 rounded-xl border border-amber-500/30 mb-3 space-y-2.5 shadow-inner">
+                    <div class="text-xs font-bold text-amber-300 flex items-center justify-between border-b border-slate-800 pb-1.5">
+                        <span><i class="fa-solid fa-box-open text-amber-400"></i> パック合計 (1パック 280g基準)</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs">
-                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700">
-                            <div class="text-slate-400 text-[10px]">レギュラーパック (S~2L)</div>
-                            <div class="text-slate-200 font-bold"><span id="pack-reg-weight">0.0</span>g</div>
+                        <div class="bg-slate-800/90 p-2.5 rounded-lg border border-slate-700">
+                            <div class="text-slate-400 text-[10px]">レギュラーパック <span class="text-slate-500">(S~2L)</span></div>
+                            <div class="text-slate-200 font-bold mt-0.5"><span id="pack-reg-weight">0.0</span>g</div>
                             <div class="text-emerald-400 font-extrabold text-sm mt-0.5"><span id="pack-reg-count">0.00</span> パック</div>
                         </div>
-                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700">
-                            <div class="text-slate-400 text-[10px]">平パック (6〜12玉)</div>
-                            <div class="text-slate-200 font-bold"><span id="pack-flat-weight">0.0</span>g</div>
+                        <div class="bg-slate-800/90 p-2.5 rounded-lg border border-slate-700">
+                            <div class="text-slate-400 text-[10px]">平パック <span class="text-slate-500">(6〜12玉)</span></div>
+                            <div class="text-slate-200 font-bold mt-0.5"><span id="pack-flat-weight">0.0</span>g</div>
                             <div class="text-rose-400 font-extrabold text-sm mt-0.5"><span id="pack-flat-count">0.00</span> パック</div>
                         </div>
                     </div>
@@ -459,9 +464,9 @@
             
             let text = "【イチゴ選別結果】\n" + 
                 RanksDef.map(r => `${r.name}: ${state.stats[r.key].count}個 (${state.stats[r.key].weight.toFixed(1)}g)`).join('\n') + 
-                `\n\n--- パック換算 (280g/パック) ---\n` +
-                `レギュラーパック: ${(regW/280).toFixed(2)}パック (${regW.toFixed(1)}g)\n` +
-                `平パック: ${(flatW/280).toFixed(2)}パック (${flatW.toFixed(1)}g)\n\n` +
+                `\n\n--- パック合計 (280g/パック) ---\n` +
+                `レギュラーパック (S~2L): ${(regW/280).toFixed(2)}パック (${regW.toFixed(1)}g)\n` +
+                `平パック (6~12玉): ${(flatW/280).toFixed(2)}パック (${flatW.toFixed(1)}g)\n\n` +
                 `総計: ${state.stats.totalCount}個 (${state.stats.totalWeight.toFixed(1)}g)`;
             
             navigator.clipboard.writeText(text).then(() => alert("結果をコピーしました！"));
@@ -522,7 +527,7 @@
             document.getElementById('raw-bytes-display').innerText = `[${bytes.join(', ')}]`;
             document.getElementById('raw-data-status').innerText = "受信 " + new Date().toLocaleTimeString();
 
-.            let weight = 0;
+            let weight = 0;
             if (value.byteLength >= 5) {
                 weight = value.getUint16(3, false);
             }
