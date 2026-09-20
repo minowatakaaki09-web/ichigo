@@ -207,7 +207,6 @@
             `).join('');
         }
 
-        // 音声合成と「ピッ」という電子音の定義
         const synth = window.speechSynthesis;
         function playBeep() {
             try {
@@ -215,16 +214,14 @@
                 const osc = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
                 osc.type = 'sine';
-                osc.frequency.value = 880; // 高めのピッと鳴る周波数 (A5)
+                osc.frequency.value = 880; 
                 gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
                 osc.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
                 osc.start();
                 osc.stop(audioCtx.currentTime + 0.15);
-            } catch(e) {
-                // AudioContextがブロックされている場合のフォールバック
-            }
+            } catch(e) {}
         }
 
         function speakText(text) {
@@ -232,7 +229,7 @@
             if (synth.speaking) synth.cancel();
             const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'ja-JP';
-            utter.rate = 1.25; // テンポ良く喋る
+            utter.rate = 1.25; 
             synth.speak(utter);
         }
 
@@ -283,10 +280,7 @@
                     clearTimeout(state.stableTimer);
                 }
 
-                document.getElementById('rank-badge').innerText = "安定確認中...";
-                document.getElementById('rank-badge').className = "inline-block px-6 py-2 rounded-2xl font-black text-2xl md:text-3xl shadow-inner transition-all duration-300 bg-amber-900/60 text-amber-300 border border-amber-500/50 animate-pulse";
-
-                // ちょうど1秒間（1000ms）動きが安定したら確定
+                // 「安定確認中」の文字やアニメーションを削除し、直前の表示をそのまま維持して1秒待機
                 state.stableTimer = setTimeout(() => {
                     finalizePickedBerry(newGross, diffWeight);
                 }, 1000);
@@ -295,8 +289,6 @@
                 if (diffWeight < 1.0 && state.stableTimer) {
                     clearTimeout(state.stableTimer);
                     state.stableTimer = null;
-                    document.getElementById('rank-badge').innerText = "準備OK";
-                    document.getElementById('rank-badge').className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 bg-emerald-900/80 text-emerald-300 border border-emerald-500/50";
                 }
             }
         }
