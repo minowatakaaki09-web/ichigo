@@ -1,9 +1,9 @@
-　<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>イチゴ選別 分太AI (完全安定・5g以下規格外対応版)</title>
+    <title>イチゴ選別 分太AI (パック換算・平パック対応版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,7 +23,7 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">完全安定版</span>
+                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">パック集計版</span>
                 </h1>
                 <p class="text-xs text-slate-400">リアルタイム直読・即時判定</p>
             </div>
@@ -65,15 +65,18 @@
                 </div>
 
                 <!-- SUB INFO -->
-                <div class="w-full bg-slate-900/60 rounded-xl p-3 flex justify-around text-center border border-slate-700/50 text-xs">
+                <div class="w-full bg-slate-900/60 rounded-xl p-3 grid grid-cols-3 gap-2 text-center border border-slate-700/50 text-xs">
                     <div>
                         <div class="text-slate-500 font-medium">スケール現在値</div>
-                        <div class="text-slate-200 font-bold font-mono text-base"><span id="gross-weight">0.0</span> g</div>
+                        <div class="text-slate-200 font-bold font-mono text-sm"><span id="gross-weight">0.0</span> g</div>
                     </div>
-                    <div class="border-r border-slate-700/80"></div>
+                    <div class="border-x border-slate-700/80 px-1">
+                        <div class="text-slate-500 font-medium">直前の総量</div>
+                        <div class="text-amber-400 font-bold font-mono text-sm"><span id="prev-base-weight">0.0</span> g</div>
+                    </div>
                     <div>
-                        <div class="text-slate-500 font-medium">基準重量 (カゴ総重)</div>
-                        <div class="text-slate-200 font-bold font-mono text-base"><span id="base-weight">0.0</span> g</div>
+                        <div class="text-slate-500 font-medium">現在の基準重量</div>
+                        <div class="text-slate-200 font-bold font-mono text-sm"><span id="base-weight">0.0</span> g</div>
                     </div>
                 </div>
 
@@ -109,8 +112,8 @@
                 <div class="grid grid-cols-4 gap-2">
                     <button onclick="simTakeBerry(4.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">4g玉(規格外)</button>
                     <button onclick="simTakeBerry(17.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">17g玉</button>
+                    <button onclick="simTakeBerry(35.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">8玉サイズ(35g)</button>
                     <button onclick="simTakeBerry(52.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">大粒(52.5g)</button>
-                    <button onclick="simTakeBerry(88.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">特大(88g)</button>
                 </div>
             </div>
 
@@ -150,6 +153,26 @@
                     </span>
                 </div>
                 <div class="grid grid-cols-4 gap-1.5 text-center text-xs mb-3" id="stats-grid"></div>
+                
+                <!-- PACK SUMMARY (1パック 280g) -->
+                <div class="bg-slate-900/70 p-3 rounded-xl border border-slate-700/80 mb-3 space-y-2">
+                    <div class="text-xs font-bold text-slate-300 flex items-center justify-between border-b border-slate-800 pb-1">
+                        <span><i class="fa-solid fa-box-open text-amber-400"></i> パック換算 (1パック 280g基準)</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700">
+                            <div class="text-slate-400 text-[10px]">レギュラーパック (S~2L)</div>
+                            <div class="text-slate-200 font-bold"><span id="pack-reg-weight">0.0</span>g</div>
+                            <div class="text-emerald-400 font-extrabold text-sm mt-0.5"><span id="pack-reg-count">0.00</span> パック</div>
+                        </div>
+                        <div class="bg-slate-800/80 p-2 rounded-lg border border-slate-700">
+                            <div class="text-slate-400 text-[10px]">平パック (6〜12玉)</div>
+                            <div class="text-slate-200 font-bold"><span id="pack-flat-weight">0.0</span>g</div>
+                            <div class="text-rose-400 font-extrabold text-sm mt-0.5"><span id="pack-flat-count">0.00</span> パック</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="pt-2 border-t border-slate-700/80 flex justify-between items-center text-xs text-slate-400">
                     <span>総重量: <strong id="total-weight" class="text-slate-200">0.0</strong>g</span>
                     <div class="flex gap-2">
@@ -164,7 +187,7 @@
                 <h3 class="text-sm font-bold text-slate-300 mb-2 flex items-center gap-2">
                     <i class="fa-solid fa-list-ol text-blue-400"></i> 選別履歴ログ
                 </h3>
-                <div id="log-container" class="flex-1 overflow-y-auto max-h-[180px] custom-scrollbar space-y-1.5 pr-1 text-xs">
+                <div id="log-container" class="flex-1 overflow-y-auto max-h-[160px] custom-scrollbar space-y-1.5 pr-1 text-xs">
                     <div class="text-slate-500 text-center py-6">選別データはまだありません</div>
                 </div>
             </div>
@@ -176,22 +199,33 @@
     <!-- SCRIPT -->
     <script>
         const RanksDef = [
-            { key: '6', name: '6玉' }, { key: '7', name: '7玉' }, { key: '8', name: '8玉' },
-            { key: '9', name: '9玉' }, { key: '10', name: '10玉' }, { key: '11', name: '11玉' },
-            { key: '12', name: '12玉' }, { key: '2L', name: '2Lサイズ' }, { key: 'L', name: 'Lサイズ' },
-            { key: 'M', name: 'Mサイズ' }, { key: 'S', name: 'Sサイズ' }, { key: 'out', name: '規格外' }
+            { key: '6', name: '6玉', group: 'flat' }, 
+            { key: '7', name: '7玉', group: 'flat' }, 
+            { key: '8', name: '8玉', group: 'flat' },
+            { key: '9', name: '9玉', group: 'flat' }, 
+            { key: '10', name: '10玉', group: 'flat' }, 
+            { key: '11', name: '11玉', group: 'flat' },
+            { key: '12', name: '12玉', group: 'flat' }, 
+            { key: '2L', name: '2Lサイズ', group: 'regular' }, 
+            { key: 'L', name: 'Lサイズ', group: 'regular' },
+            { key: 'M', name: 'Mサイズ', group: 'regular' }, 
+            { key: 'S', name: 'Sサイズ', group: 'regular' }, 
+            { key: 'out', name: '規格外', group: 'out' }
         ];
 
         const state = {
             lastGrossWeight: 0.0,
             baseWeight: 0.0,
+            prevBaseWeight: 0.0,
             isBasketSet: false,
             bluetoothDevice: null,
             stats: {},
             logs: []
         };
 
-        RanksDef.forEach(r => state.stats[r.key] = 0);
+        RanksDef.forEach(r => {
+            state.stats[r.key] = { count: 0, weight: 0.0 };
+        });
         state.stats.totalCount = 0;
         state.stats.totalWeight = 0.0;
         initStatsUI();
@@ -249,22 +283,21 @@
         }
 
         function evaluateRank(weight) {
-            // ★ 5g以下の重さのものは確実に「規格外」とする
-            if (weight <= 5.0) return { name: '規格外', key: 'out' };
+            if (weight <= 5.0) return { name: '規格外', key: 'out', group: 'out' };
 
             const th = getThresholds();
-            if (weight >= th['6']) return { name: '6玉', key: '6' };
-            if (weight >= th['7']) return { name: '7玉', key: '7' };
-            if (weight >= th['8']) return { name: '8玉', key: '8' };
-            if (weight >= th['9']) return { name: '9玉', key: '9' };
-            if (weight >= th['10']) return { name: '10玉', key: '10' };
-            if (weight >= th['11']) return { name: '11玉', key: '11' };
-            if (weight >= th['12']) return { name: '12玉', key: '12' };
-            if (weight >= th['2L']) return { name: '2Lサイズ', key: '2L' };
-            if (weight >= th['L']) return { name: 'Lサイズ', key: 'L' };
-            if (weight >= th['M']) return { name: 'Mサイズ', key: 'M' };
-            if (weight >= th['S']) return { name: 'Sサイズ', key: 'S' };
-            return { name: '規格外', key: 'out' };
+            if (weight >= th['6']) return { name: '6玉', key: '6', group: 'flat' };
+            if (weight >= th['7']) return { name: '7玉', key: '7', group: 'flat' };
+            if (weight >= th['8']) return { name: '8玉', key: '8', group: 'flat' };
+            if (weight >= th['9']) return { name: '9玉', key: '9', group: 'flat' };
+            if (weight >= th['10']) return { name: '10玉', key: '10', group: 'flat' };
+            if (weight >= th['11']) return { name: '11玉', key: '11', group: 'flat' };
+            if (weight >= th['12']) return { name: '12玉', key: '12', group: 'flat' };
+            if (weight >= th['2L']) return { name: '2Lサイズ', key: '2L', group: 'regular' };
+            if (weight >= th['L']) return { name: 'Lサイズ', key: 'L', group: 'regular' };
+            if (weight >= th['M']) return { name: 'Mサイズ', key: 'M', group: 'regular' };
+            if (weight >= th['S']) return { name: 'Sサイズ', key: 'S', group: 'regular' };
+            return { name: '規格外', key: 'out', group: 'out' };
         }
 
         function processGrossWeightUpdate(newGross) {
@@ -277,7 +310,6 @@
 
             const diffWeight = state.baseWeight - newGross;
 
-            // 1.5g以上の減少があれば判定（4gの小粒も確実に拾う）
             if (diffWeight >= 1.5) {
                 finalizePickedBerry(newGross, diffWeight);
             }
@@ -294,6 +326,9 @@
             playBeep();
             speakText(`${diffWeight.toFixed(1)}グラム、${rank.name}`);
             
+            state.prevBaseWeight = state.baseWeight;
+            document.getElementById('prev-base-weight').innerText = state.prevBaseWeight.toFixed(1);
+
             recordLog(diffWeight, rank, state.baseWeight);
             updateStatsUI();
 
@@ -307,8 +342,10 @@
                 return;
             }
             state.baseWeight = state.lastGrossWeight;
+            state.prevBaseWeight = state.baseWeight;
             state.isBasketSet = true;
             document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
+            document.getElementById('prev-base-weight').innerText = state.prevBaseWeight.toFixed(1);
             document.getElementById('removed-weight-display').innerText = "0.0";
             
             const badge = document.getElementById('rank-badge');
@@ -322,8 +359,14 @@
         function recordLog(weight, rank, prevBase) {
             const timeStr = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             state.logs.unshift({ time: timeStr, weight: weight, rankKey: rank.key, rankName: rank.name, prevBase: prevBase });
-            if (state.stats[rank.key] !== undefined) state.stats[rank.key]++;
-            else state.stats.out++;
+            
+            if (state.stats[rank.key]) {
+                state.stats[rank.key].count++;
+                state.stats[rank.key].weight += weight;
+            } else {
+                state.stats['out'].count++;
+                state.stats['out'].weight += weight;
+            }
             state.stats.totalCount++;
             state.stats.totalWeight += weight;
             renderLogsUI();
@@ -332,12 +375,20 @@
         function undoLastItem() {
             if (state.logs.length === 0) { alert("取り消す履歴がありません。"); return; }
             const last = state.logs.shift();
-            state.stats[last.rankKey]--;
+            
+            if (state.stats[last.rankKey]) {
+                state.stats[last.rankKey].count--;
+                state.stats[last.rankKey].weight -= last.weight;
+            }
             state.stats.totalCount--;
             state.stats.totalWeight -= last.weight;
+            
             state.baseWeight = last.prevBase;
+            state.prevBaseWeight = last.prevBase;
             document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
+            document.getElementById('prev-base-weight').innerText = state.prevBaseWeight.toFixed(1);
             document.getElementById('removed-weight-display').innerText = `(-${last.weight.toFixed(1)}) 取消`;
+            
             speakText("取り消しました。");
             updateStatsUI();
             renderLogsUI();
@@ -361,25 +412,59 @@
         function updateStatsUI() {
             RanksDef.forEach(r => {
                 const el = document.getElementById(`count-${r.key}`);
-                if (el) el.innerText = state.stats[r.key];
+                if (el) el.innerText = state.stats[r.key].count;
             });
+
+            let regWeight = 0;
+            let flatWeight = 0;
+
+            RanksDef.forEach(r => {
+                if (r.group === 'regular') regWeight += state.stats[r.key].weight;
+                if (r.group === 'flat') flatWeight += state.stats[r.key].weight;
+            });
+
+            const regPacks = regWeight / 280.0;
+            const flatPacks = flatWeight / 280.0;
+
+            document.getElementById('pack-reg-weight').innerText = regWeight.toFixed(1);
+            document.getElementById('pack-reg-count').innerText = regPacks.toFixed(2);
+            document.getElementById('pack-flat-weight').innerText = flatWeight.toFixed(1);
+            document.getElementById('pack-flat-count').innerText = flatPacks.toFixed(2);
+
             document.getElementById('total-count-badge').innerText = `合計: ${state.stats.totalCount} 個`;
             document.getElementById('total-weight').innerText = state.stats.totalWeight.toFixed(1);
         }
 
         function resetStats() {
             if(!confirm("集計をリセットしますか？")) return;
-            RanksDef.forEach(r => state.stats[r.key] = 0);
+            RanksDef.forEach(r => {
+                state.stats[r.key].count = 0;
+                state.stats[r.key].weight = 0.0;
+            });
             state.stats.totalCount = 0;
             state.stats.totalWeight = 0.0;
             state.logs = [];
+            state.prevBaseWeight = state.baseWeight;
+            document.getElementById('prev-base-weight').innerText = state.prevBaseWeight.toFixed(1);
             renderLogsUI();
             updateStatsUI();
         }
 
         function copyResults() {
-            let text = "【イチゴ選別結果】\n" + RanksDef.map(r => `${r.name}: ${state.stats[r.key]}個`).join('\n') + `\n合計: ${state.stats.totalCount}個 (${state.stats.totalWeight.toFixed(1)}g)`;
-            navigator.clipboard.writeText(text).then(() => alert("コピーしました！"));
+            let regW = 0, flatW = 0;
+            RanksDef.forEach(r => {
+                if (r.group === 'regular') regW += state.stats[r.key].weight;
+                if (r.group === 'flat') flatW += state.stats[r.key].weight;
+            });
+            
+            let text = "【イチゴ選別結果】\n" + 
+                RanksDef.map(r => `${r.name}: ${state.stats[r.key].count}個 (${state.stats[r.key].weight.toFixed(1)}g)`).join('\n') + 
+                `\n\n--- パック換算 (280g/パック) ---\n` +
+                `レギュラーパック: ${(regW/280).toFixed(2)}パック (${regW.toFixed(1)}g)\n` +
+                `平パック: ${(flatW/280).toFixed(2)}パック (${flatW.toFixed(1)}g)\n\n` +
+                `総計: ${state.stats.totalCount}個 (${state.stats.totalWeight.toFixed(1)}g)`;
+            
+            navigator.clipboard.writeText(text).then(() => alert("結果をコピーしました！"));
         }
 
         async function connectScale() {
@@ -430,7 +515,6 @@
             speakText("スケールが切断されました");
         }
 
-        // 常にインデックス3・4の2バイトを確実にビッグエンディアンで読み取る
         function parseScaleData(value) {
             let bytes = [];
             for (let i = 0; i < value.byteLength; i++) { bytes.push(value.getUint8(i)); }
@@ -438,7 +522,7 @@
             document.getElementById('raw-bytes-display').innerText = `[${bytes.join(', ')}]`;
             document.getElementById('raw-data-status').innerText = "受信 " + new Date().toLocaleTimeString();
 
-            let weight = 0;
+.            let weight = 0;
             if (value.byteLength >= 5) {
                 weight = value.getUint16(3, false);
             }
