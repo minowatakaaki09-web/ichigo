@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>イチゴ選別 分太AI (完全完璧版)</title>
+    <title>イチゴ選別 分太AI (完全最終修正版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,7 +23,7 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">完全完璧版</span>
+                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">最終修正版</span>
                 </h1>
                 <p class="text-xs text-slate-400">リアルタイム直読・即時判定</p>
             </div>
@@ -80,7 +80,7 @@
                 <!-- COMMUNICATION DEBUG MONITOR -->
                 <div class="w-full mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-400 flex flex-col gap-1">
                     <div class="flex justify-between items-center text-[11px] text-slate-400 border-b border-slate-800 pb-1">
-                        <span><i class="fa-solid fa-bug text-emerald-400"></i> データモニター (正常直読)</span>
+                        <span><i class="fa-solid fa-bug text-emerald-400"></i> データモニター (完全正常化)</span>
                         <span id="raw-data-status" class="text-emerald-400">待機中</span>
                     </div>
                     <div class="text-slate-300">受信データBytes: <span id="raw-bytes-display" class="text-amber-300 font-bold">[-]</span></div>
@@ -386,7 +386,6 @@
                     ]
                 });
 
-                // 切断イベントの監視を常時セット
                 state.bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
 
                 const server = await state.bluetoothDevice.gatt.connect();
@@ -422,7 +421,7 @@
             speakText("スケールが切断されました");
         }
 
-        // 【完璧版パーサー】余計な計算を廃し、インデックス4の数値をダイレクトに総重量として直読
+        // 【最終修正パーサー】インデックス4の数値を正しく16bitリトルエンディアンで安全に直読
         function parseScaleData(value) {
             let bytes = [];
             for (let i = 0; i < value.byteLength; i++) { bytes.push(value.getUint8(i)); }
@@ -433,16 +432,17 @@
             let weight = 0;
             const len = value.byteLength;
 
-            if (len >= 5) {
-                // インデックス4のバイト値をそのまま重量（g）として採用
-                let directWeight = value.getUint8(4);
-                if (directWeight >= 0 && directWeight < 10000) {
-                    weight = directWeight;
+            if (len >= 6) {
+                // インデックス4からリトルエンディアン(true)で16bit値を取得 (例: [..., 224, 0, ...] なら 224)
+                let rawVal = value.getUint16(4, true);
+                if (rawVal >= 0 && rawVal < 10000) {
+                    weight = rawVal;
                 }
             }
 
-            // 取得した重量を画面に反映
-            processGrossWeightUpdate(weight);
+            if (weight > 0 || weight === 0) {
+                processGrossWeightUpdate(weight);
+            }
         }
 
         function simTakeBerry(weight) {
