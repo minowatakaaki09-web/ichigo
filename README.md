@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>イチゴ選別 分太AI (OBEST完全適合版)</title>
+    <title>イチゴ選別 分太AI (1秒ディレイ安定化対応版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,9 +23,9 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">完全適合版</span>
+                    イチゴ減算秤 <span class="bg-amber-500/20 text-amber-400 text-xs px-2 py-0.5 rounded-full border border-amber-500/30">1秒安定待ち対応</span>
                 </h1>
-                <p class="text-xs text-slate-400">バイト4直読ロジック搭載</p>
+                <p class="text-xs text-slate-400">フルレンジ＆ディレイ確定ロジック搭載</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -57,7 +57,7 @@
 
                 <!-- WEIGHT DISPLAY -->
                 <div class="my-5 text-center">
-                    <div class="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">今回引いたイチゴの重さ</div>
+                    <div id="weight-label-text" class="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">今回引いたイチゴの重さ</div>
                     <div class="flex items-baseline justify-center gap-2">
                         <span id="removed-weight-display" class="text-6xl md:text-7xl font-black tracking-tight text-white font-mono">0.0</span>
                         <span class="text-2xl font-bold text-slate-400">g</span>
@@ -80,7 +80,7 @@
                 <!-- COMMUNICATION DEBUG MONITOR -->
                 <div class="w-full mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-mono text-slate-400 flex flex-col gap-1">
                     <div class="flex justify-between items-center text-[11px] text-slate-400 border-b border-slate-800 pb-1">
-                        <span><i class="fa-solid fa-bug text-amber-400"></i> OBEST通信モニター</span>
+                        <span><i class="fa-solid fa-bug text-amber-400"></i> OBEST通信モニター (1秒待機判定)</span>
                         <span id="raw-data-status" class="text-emerald-400">待機中</span>
                     </div>
                     <div class="text-slate-300">生データBytes: <span id="raw-bytes-display" class="text-amber-300 font-bold">[-]</span></div>
@@ -107,10 +107,10 @@
                     <button onclick="toggleSimPanel()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="grid grid-cols-4 gap-2">
-                    <button onclick="simTakeBerry(8.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">S玉(8g)</button>
-                    <button onclick="simTakeBerry(15.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">L玉(15g)</button>
-                    <button onclick="simTakeBerry(27.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">10玉(27.5g)</button>
-                    <button onclick="simTakeBerry(42.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">7玉(42g)</button>
+                    <button onclick="simTakeBerry(17.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">17g玉</button>
+                    <button onclick="simTakeBerry(52.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">大粒(52.5g)</button>
+                    <button onclick="simTakeBerry(88.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">特大(88g)</button>
+                    <button onclick="simTakeBerry(120.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">超特大(120g)</button>
                 </div>
             </div>
 
@@ -188,7 +188,10 @@
             isBasketSet: false,
             bluetoothDevice: null,
             stats: {},
-            logs: []
+            logs: [],
+            // ディレイ安定化用の状態変数
+            pendingWeight: null,
+            stableTimer: null
         };
 
         RanksDef.forEach(r => state.stats[r.key] = 0);
@@ -257,23 +260,56 @@
             const diffWeight = state.baseWeight - newGross;
 
             if (diffWeight >= 3.0) {
-                const rank = evaluateRank(diffWeight);
+                // リアルタイムで現在値を軽く画面に出す（まだ確定前）
                 document.getElementById('removed-weight-display').innerText = diffWeight.toFixed(1);
                 
-                const badge = document.getElementById('rank-badge');
-                badge.innerText = rank.name;
-                badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 border text-white bg-slate-700 border-slate-600";
+                // もし既にタイマーが動いていたら、数値が動いている（まだ触っている最中）とみなしてタイマーをリセット
+                if (state.stableTimer) {
+                    clearTimeout(state.stableTimer);
+                }
 
-                speakText(`${diffWeight.toFixed(0)}グラム、${rank.name}`);
-                recordLog(diffWeight, rank, state.baseWeight);
-                updateStatsUI();
+                // 画面表示を「安定待ち...」風の演出にする
+                document.getElementById('rank-badge').innerText = "安定確認中...";
+                document.getElementById('rank-badge').className = "inline-block px-6 py-2 rounded-2xl font-black text-2xl md:text-3xl shadow-inner transition-all duration-300 bg-amber-900/60 text-amber-300 border border-amber-500/50 animate-pulse";
 
-                state.baseWeight = newGross;
-                document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
+                // ★ここがポイント：値が変わらなくなってから「1.0秒（1000ミリ秒）」経ったら正式確定する
+                state.stableTimer = setTimeout(() => {
+                    finalizePickedBerry(newGross, diffWeight);
+                }, 1000);
+
+            } else {
+                // 3g未満の変化（指を置く前の状態など）でタイマーがあればキャンセル
+                if (diffWeight < 1.0 && state.stableTimer) {
+                    clearTimeout(state.stableTimer);
+                    state.stableTimer = null;
+                    document.getElementById('rank-badge').innerText = "準備OK";
+                    document.getElementById('rank-badge').className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 bg-emerald-900/80 text-emerald-300 border border-emerald-500/50";
+                }
             }
         }
 
+        // 1秒間の静止を確認したあとに呼び出される確定処理
+        function finalizePickedBerry(finalGross, diffWeight) {
+            const rank = evaluateRank(diffWeight);
+            document.getElementById('removed-weight-display').innerText = diffWeight.toFixed(1);
+            
+            const badge = document.getElementById('rank-badge');
+            badge.innerText = rank.name;
+            badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 border text-white bg-slate-700 border-slate-600";
+
+            // 音声読み上げと記録の実行
+            speakText(`${diffWeight.toFixed(1)}グラム、${rank.name}`);
+            recordLog(diffWeight, rank, state.baseWeight);
+            updateStatsUI();
+
+            // 基準重量を今のスケール値に更新して次のイチゴへ
+            state.baseWeight = finalGross;
+            document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
+            state.stableTimer = null;
+        }
+
         function setTareBasket() {
+            if (state.stableTimer) { clearTimeout(state.stableTimer); state.stableTimer = null; }
             state.baseWeight = state.lastGrossWeight;
             state.isBasketSet = true;
             document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
@@ -297,6 +333,7 @@
         }
 
         function undoLastItem() {
+            if (state.stableTimer) { clearTimeout(state.stableTimer); state.stableTimer = null; }
             if (state.logs.length === 0) { alert("取り消す履歴がありません。"); return; }
             const last = state.logs.shift();
             state.stats[last.rankKey]--;
@@ -394,15 +431,24 @@
             document.getElementById('raw-bytes-display').innerText = `[${bytes.join(', ')}]`;
             document.getElementById('raw-data-status').innerText = "受信 " + new Date().toLocaleTimeString();
 
-            if (value.byteLength >= 5) {
-                // ★ここを修正：4番目のバイト（index 4）を重さ（g）として直接採用！
-                let weight = value.getUint8(4);
-                
-                // もし小数点以下や2バイト結合が必要ならここで調整可能ですが、
-                // まずはバイト4の値をそのままグラムとして扱います
-                if (weight > 0 && weight < 5000) {
+            if (value.byteLength >= 6) {
+                let rawWeight = (value.getUint8(4) << 8) | value.getUint8(5);
+                let weight = 0;
+                if (rawWeight > 0 && rawWeight < 10000) {
+                    weight = rawWeight / 10.0;
+                    if (weight > 500) {
+                        weight = rawWeight;
+                    }
+                } else {
+                    weight = value.getUint8(4);
+                }
+
+                if (weight > 0 && weight < 10000) {
                     processGrossWeightUpdate(weight);
                 }
+            } else if (value.byteLength >= 5) {
+                let weight = value.getUint8(4);
+                if (weight > 0) processGrossWeightUpdate(weight);
             }
         }
 
