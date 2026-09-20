@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>イチゴ選別 分太AI (1秒ディレイ安定化対応版)</title>
+    <title>イチゴ選別 分太AI (電子音＆音声完全版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,9 +23,9 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    イチゴ減算秤 <span class="bg-amber-500/20 text-amber-400 text-xs px-2 py-0.5 rounded-full border border-amber-500/30">1秒安定待ち対応</span>
+                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">電子音・音声対応版</span>
                 </h1>
-                <p class="text-xs text-slate-400">フルレンジ＆ディレイ確定ロジック搭載</p>
+                <p class="text-xs text-slate-400">1秒安定確定 ＆ ビープ音搭載</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -57,7 +57,7 @@
 
                 <!-- WEIGHT DISPLAY -->
                 <div class="my-5 text-center">
-                    <div id="weight-label-text" class="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">今回引いたイチゴの重さ</div>
+                    <div class="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">今回引いたイチゴの重さ</div>
                     <div class="flex items-baseline justify-center gap-2">
                         <span id="removed-weight-display" class="text-6xl md:text-7xl font-black tracking-tight text-white font-mono">0.0</span>
                         <span class="text-2xl font-bold text-slate-400">g</span>
@@ -189,8 +189,6 @@
             bluetoothDevice: null,
             stats: {},
             logs: [],
-            // ディレイ安定化用の状態変数
-            pendingWeight: null,
             stableTimer: null
         };
 
@@ -209,13 +207,32 @@
             `).join('');
         }
 
+        // 音声合成と「ピッ」という電子音の定義
         const synth = window.speechSynthesis;
+        function playBeep() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = 880; // 高めのピッと鳴る周波数 (A5)
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.15);
+            } catch(e) {
+                // AudioContextがブロックされている場合のフォールバック
+            }
+        }
+
         function speakText(text) {
             if (!synth) return;
             if (synth.speaking) synth.cancel();
             const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'ja-JP';
-            utter.rate = 1.2;
+            utter.rate = 1.25; // テンポ良く喋る
             synth.speak(utter);
         }
 
@@ -260,25 +277,21 @@
             const diffWeight = state.baseWeight - newGross;
 
             if (diffWeight >= 3.0) {
-                // リアルタイムで現在値を軽く画面に出す（まだ確定前）
                 document.getElementById('removed-weight-display').innerText = diffWeight.toFixed(1);
                 
-                // もし既にタイマーが動いていたら、数値が動いている（まだ触っている最中）とみなしてタイマーをリセット
                 if (state.stableTimer) {
                     clearTimeout(state.stableTimer);
                 }
 
-                // 画面表示を「安定待ち...」風の演出にする
                 document.getElementById('rank-badge').innerText = "安定確認中...";
                 document.getElementById('rank-badge').className = "inline-block px-6 py-2 rounded-2xl font-black text-2xl md:text-3xl shadow-inner transition-all duration-300 bg-amber-900/60 text-amber-300 border border-amber-500/50 animate-pulse";
 
-                // ★ここがポイント：値が変わらなくなってから「1.0秒（1000ミリ秒）」経ったら正式確定する
+                // ちょうど1秒間（1000ms）動きが安定したら確定
                 state.stableTimer = setTimeout(() => {
                     finalizePickedBerry(newGross, diffWeight);
                 }, 1000);
 
             } else {
-                // 3g未満の変化（指を置く前の状態など）でタイマーがあればキャンセル
                 if (diffWeight < 1.0 && state.stableTimer) {
                     clearTimeout(state.stableTimer);
                     state.stableTimer = null;
@@ -288,7 +301,7 @@
             }
         }
 
-        // 1秒間の静止を確認したあとに呼び出される確定処理
+        // 1秒静止後の確定処理（電子音＋音声読み上げ）
         function finalizePickedBerry(finalGross, diffWeight) {
             const rank = evaluateRank(diffWeight);
             document.getElementById('removed-weight-display').innerText = diffWeight.toFixed(1);
@@ -297,12 +310,15 @@
             badge.innerText = rank.name;
             badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 border text-white bg-slate-700 border-slate-600";
 
-            // 音声読み上げと記録の実行
+            // ①「ピッ」と電子音を鳴らす
+            playBeep();
+
+            // ② グラムと階級を必ずセットで音声読み上げ
             speakText(`${diffWeight.toFixed(1)}グラム、${rank.name}`);
+            
             recordLog(diffWeight, rank, state.baseWeight);
             updateStatsUI();
 
-            // 基準重量を今のスケール値に更新して次のイチゴへ
             state.baseWeight = finalGross;
             document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
             state.stableTimer = null;
@@ -319,6 +335,7 @@
             badge.innerText = "準備完了";
             badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 bg-emerald-900/80 text-emerald-300 border border-emerald-500/50";
 
+            playBeep();
             speakText("カゴを設定しました。");
         }
 
@@ -416,6 +433,7 @@
                 document.getElementById('conn-text').innerText = "接続済み";
                 document.getElementById('status-indicator').className = "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse";
                 document.getElementById('status-text').innerText = "スケールオンライン";
+                playBeep();
                 speakText("接続完了");
 
             } catch (error) {
