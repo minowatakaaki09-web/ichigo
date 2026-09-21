@@ -25,7 +25,7 @@
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
                     イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">パック集計版</span>
                 </h1>
-                <p class="text-xs text-slate-400">リアルタイム直読・即時判定</p>
+                <p class="text-xs text-slate-400">リアルタイム直読・完全安定判定</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -228,9 +228,10 @@
             logs: []
         };
 
-        // 安定待ち判定用の変数
-        let stabilizationTimer = null;
-        let lastTargetGross = 0;
+        // 完全安定待ち判定用の変数
+        let lastStableWeight = -1;
+        let stableCount = 0;
+        const STABLE_THRESHOLD_COUNT = 4; // 約300〜400ms間、値が完全に静止したら確定
 
         RanksDef.forEach(r => {
             state.stats[r.key] = { count: 0, weight: 0.0 };
@@ -310,19 +311,15 @@
         }
 
         function processGrossWeightUpdate(newGross) {
-            if (newGross <= 0 && state.lastGrossWeight > 0) return;
-
             state.lastGrossWeight = newGross;
             document.getElementById('gross-weight').innerText = newGross.toFixed(1);
 
             if (!state.isBasketSet) return;
 
-            // 基準重量より重くなった場合（イチゴの補充など）
+            // 基準重量より重くなった場合（イチゴの補充や乗せ直し）
             if (newGross > state.baseWeight + 5.0) {
-                if (stabilizationTimer) {
-                    clearTimeout(stabilizationTimer);
-                    stabilizationTimer = null;
-                }
+                lastStableWeight = -1;
+                stableCount = 0;
                 state.prevBaseWeight = state.baseWeight;
                 state.baseWeight = newGross;
                 document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
@@ -335,31 +332,35 @@
                 return;
             }
 
-            const diffWeight = state.baseWeight - newGross;
-
-            // 5.0g以上落ちた場合、動きが落ち着く（安定する）のを少し待ってから1回だけ確定する
-            if (diffWeight >= 5.0) {
-                lastTargetGross = newGross;
+            // --- 完全安定判定ロジック ---
+            // 前回受信した値とほぼ同じ（±0.5g以内）であれば、静止しているとみなす
+            if (Math.abs(newGross - lastStableWeight) <= 0.5) {
+                stableCount++;
+            } else {
+                // 動いている最中はカウントをリセットして、新しい値を追う
+                lastStableWeight = newGross;
+                stableCount = 0;
                 
-                // 画面の仮表示
-                const tempRank = evaluateRank(diffWeight);
-                document.getElementById('removed-weight-display').innerText = diffWeight.toFixed(1);
-                const badge = document.getElementById('rank-badge');
-                badge.innerText = tempRank.name;
-                badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 border text-white bg-slate-700 border-slate-600";
-
-                if (stabilizationTimer) {
-                    clearTimeout(stabilizationTimer);
+                // 動いている最中でも、画面のプレビュー表示だけはリアルタイムに更新
+                const currentDiff = state.baseWeight - newGross;
+                if (currentDiff >= 5.0) {
+                    const tempRank = evaluateRank(currentDiff);
+                    document.getElementById('removed-weight-display').innerText = currentDiff.toFixed(1);
+                    const badge = document.getElementById('rank-badge');
+                    badge.innerText = tempRank.name + " (計測中...)";
+                    badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-2xl md:text-3xl shadow-inner transition-all duration-300 border text-slate-300 bg-slate-800 border-slate-600";
                 }
+            }
 
-                // 180ミリ秒間、新しい値の変動がなければそこで最終決定する（途中の分割を防止）
-                stabilizationTimer = setTimeout(() => {
-                    const finalDiff = state.baseWeight - lastTargetGross;
-                    if (finalDiff >= 5.0) {
-                        finalizePickedBerry(lastTargetGross, finalDiff);
-                    }
-                    stabilizationTimer = null;
-                }, 180);
+            // 静止状態が一定回数（約300〜400ms）続いたら、ここで初めてスパッと確定！
+            if (stableCount >= STABLE_THRESHOLD_COUNT) {
+                const diffWeight = state.baseWeight - newGross;
+                if (diffWeight >= 5.0) {
+                    finalizePickedBerry(newGross, diffWeight);
+                    // 確定したら安定カウンターをリセットして次の動作に備える
+                    stableCount = 0;
+                    lastStableWeight = -1;
+                }
             }
         }
 
@@ -390,10 +391,8 @@
                 alert("スケールの重量が0gです。カゴを乗せてからセットしてください。");
                 return;
             }
-            if (stabilizationTimer) {
-                clearTimeout(stabilizationTimer);
-                stabilizationTimer = null;
-            }
+            lastStableWeight = -1;
+            stableCount = 0;
             state.baseWeight = state.lastGrossWeight;
             state.prevBaseWeight = state.baseWeight;
             state.isBasketSet = true;
@@ -427,10 +426,8 @@
 
         function undoLastItem() {
             if (state.logs.length === 0) { alert("取り消す履歴がありません。"); return; }
-            if (stabilizationTimer) {
-                clearTimeout(stabilizationTimer);
-                stabilizationTimer = null;
-            }
+            lastStableWeight = -1;
+            stableCount = 0;
             const last = state.logs.shift();
             
             if (state.stats[last.rankKey]) {
@@ -494,10 +491,8 @@
 
         function resetStats() {
             if(!confirm("集計をリセットしますか？")) return;
-            if (stabilizationTimer) {
-                clearTimeout(stabilizationTimer);
-                stabilizationTimer = null;
-            }
+            lastStableWeight = -1;
+            stableCount = 0;
             RanksDef.forEach(r => {
                 state.stats[r.key].count = 0;
                 state.stats[r.key].weight = 0.0;
