@@ -118,7 +118,7 @@
                     <button onclick="simTakeBerry(4.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">4g玉(スルー確認)</button>
                     <button onclick="simTakeBerry(17.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">17g玉</button>
                     <button onclick="simTakeBerry(35.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">8玉サイズ(35g)</button>
-                    <button onclick="simTakeBerry(52.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">大粒(52.5g)</button>
+                    <button onclick="simTakeBerry(100.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">大粒(100g)</button>
                 </div>
             </div>
 
@@ -228,6 +228,10 @@
             logs: []
         };
 
+        // 安定待ち判定用の変数
+        let stabilizationTimer = null;
+        let lastTargetGross = 0;
+
         RanksDef.forEach(r => {
             state.stats[r.key] = { count: 0, weight: 0.0 };
         });
@@ -315,6 +319,10 @@
 
             // 基準重量より重くなった場合（イチゴの補充など）
             if (newGross > state.baseWeight + 5.0) {
+                if (stabilizationTimer) {
+                    clearTimeout(stabilizationTimer);
+                    stabilizationTimer = null;
+                }
                 state.prevBaseWeight = state.baseWeight;
                 state.baseWeight = newGross;
                 document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
@@ -329,9 +337,29 @@
 
             const diffWeight = state.baseWeight - newGross;
 
-            // 5.0g未満のブレはスルー、5.0g以上落ちた時だけ検知
+            // 5.0g以上落ちた場合、動きが落ち着く（安定する）のを少し待ってから1回だけ確定する
             if (diffWeight >= 5.0) {
-                finalizePickedBerry(newGross, diffWeight);
+                lastTargetGross = newGross;
+                
+                // 画面の仮表示
+                const tempRank = evaluateRank(diffWeight);
+                document.getElementById('removed-weight-display').innerText = diffWeight.toFixed(1);
+                const badge = document.getElementById('rank-badge');
+                badge.innerText = tempRank.name;
+                badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 border text-white bg-slate-700 border-slate-600";
+
+                if (stabilizationTimer) {
+                    clearTimeout(stabilizationTimer);
+                }
+
+                // 180ミリ秒間、新しい値の変動がなければそこで最終決定する（途中の分割を防止）
+                stabilizationTimer = setTimeout(() => {
+                    const finalDiff = state.baseWeight - lastTargetGross;
+                    if (finalDiff >= 5.0) {
+                        finalizePickedBerry(lastTargetGross, finalDiff);
+                    }
+                    stabilizationTimer = null;
+                }, 180);
             }
         }
 
@@ -344,7 +372,7 @@
             badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 border text-white bg-slate-700 border-slate-600";
 
             playBeep();
-            // ★変更点：音声読み上げを「重さの数字だけ」に変更
+            // 数字だけをスパッと読み上げ
             speakText(`${diffWeight.toFixed(1)}`);
             
             state.prevBaseWeight = state.baseWeight;
@@ -361,6 +389,10 @@
             if (state.lastGrossWeight <= 0) {
                 alert("スケールの重量が0gです。カゴを乗せてからセットしてください。");
                 return;
+            }
+            if (stabilizationTimer) {
+                clearTimeout(stabilizationTimer);
+                stabilizationTimer = null;
             }
             state.baseWeight = state.lastGrossWeight;
             state.prevBaseWeight = state.baseWeight;
@@ -395,6 +427,10 @@
 
         function undoLastItem() {
             if (state.logs.length === 0) { alert("取り消す履歴がありません。"); return; }
+            if (stabilizationTimer) {
+                clearTimeout(stabilizationTimer);
+                stabilizationTimer = null;
+            }
             const last = state.logs.shift();
             
             if (state.stats[last.rankKey]) {
@@ -458,6 +494,10 @@
 
         function resetStats() {
             if(!confirm("集計をリセットしますか？")) return;
+            if (stabilizationTimer) {
+                clearTimeout(stabilizationTimer);
+                stabilizationTimer = null;
+            }
             RanksDef.forEach(r => {
                 state.stats[r.key].count = 0;
                 state.stats[r.key].weight = 0.0;
