@@ -115,7 +115,7 @@
                     <button onclick="toggleSimPanel()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="grid grid-cols-4 gap-2">
-                    <button onclick="simTakeBerry(4.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">4g玉(規格外)</button>
+                    <button onclick="simTakeBerry(4.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">4g玉(スルー確認)</button>
                     <button onclick="simTakeBerry(17.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">17g玉</button>
                     <button onclick="simTakeBerry(35.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">8玉サイズ(35g)</button>
                     <button onclick="simTakeBerry(52.5)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">大粒(52.5g)</button>
@@ -313,9 +313,24 @@
 
             if (!state.isBasketSet) return;
 
+            // 基準重量より重くなった場合（イチゴの補充など）
+            if (newGross > state.baseWeight + 5.0) {
+                state.prevBaseWeight = state.baseWeight;
+                state.baseWeight = newGross;
+                document.getElementById('base-weight').innerText = state.baseWeight.toFixed(1);
+                document.getElementById('prev-base-weight').innerText = state.prevBaseWeight.toFixed(1);
+                document.getElementById('removed-weight-display').innerText = "0.0";
+                
+                const badge = document.getElementById('rank-badge');
+                badge.innerText = "補充/更新";
+                badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 bg-blue-900/80 text-blue-300 border border-blue-500/50";
+                return;
+            }
+
             const diffWeight = state.baseWeight - newGross;
 
-            if (diffWeight >= 1.5) {
+            // 5.0g未満のブレはスルー、5.0g以上落ちた時だけ検知
+            if (diffWeight >= 5.0) {
                 finalizePickedBerry(newGross, diffWeight);
             }
         }
@@ -329,7 +344,8 @@
             badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 border text-white bg-slate-700 border-slate-600";
 
             playBeep();
-            speakText(`${diffWeight.toFixed(1)}グラム、${rank.name}`);
+            // ★変更点：音声読み上げを「重さの数字だけ」に変更
+            speakText(`${diffWeight.toFixed(1)}`);
             
             state.prevBaseWeight = state.baseWeight;
             document.getElementById('prev-base-weight').innerText = state.prevBaseWeight.toFixed(1);
