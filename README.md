@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>イチゴ選別 分太AI (パック換算・平パック対応版)</title>
+    <title>イチゴ選別 分太AI (音声操作・比率ダッシュボード版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -23,12 +23,15 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">パック集計版</span>
+                    イチゴ減算秤 <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30">AI完全版</span>
                 </h1>
-                <p class="text-xs text-slate-400">リアルタイム直読・完全安定判定</p>
+                <p class="text-xs text-slate-400">ハンズフリー・完全安定判定</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
+            <button id="btn-voice-cmd" onclick="toggleVoiceCommand()" class="bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-300 text-xs font-bold px-3 py-2 rounded-lg transition duration-200 flex items-center gap-1.5 shadow-md border border-slate-600">
+                <i class="fa-solid fa-microphone-slash text-slate-400" id="mic-icon"></i> <span id="mic-text">音声操作OFF</span>
+            </button>
             <button id="btn-connect" onclick="connectScale()" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-bold px-3 py-2 rounded-lg transition duration-200 flex items-center gap-2 shadow-md">
                 <i class="fa-brands fa-bluetooth-b"></i> <span id="conn-text">スケール接続</span>
             </button>
@@ -115,7 +118,7 @@
                     <button onclick="toggleSimPanel()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="grid grid-cols-4 gap-2">
-                    <button onclick="simTakeBerry(4.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">4g玉(スルー確認)</button>
+                    <button onclick="simTakeBerry(4.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">4g玉(スルー)</button>
                     <button onclick="simTakeBerry(17.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">17g玉</button>
                     <button onclick="simTakeBerry(35.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">8玉サイズ(35g)</button>
                     <button onclick="simTakeBerry(100.0)" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs">大粒(100g)</button>
@@ -159,6 +162,33 @@
                 </div>
                 <div class="grid grid-cols-4 gap-1.5 text-center text-xs mb-3" id="stats-grid"></div>
                 
+                <!-- RATIO DASHBOARD (NEW) -->
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700 mb-3 space-y-2">
+                    <div class="text-xs font-bold text-slate-300 flex items-center justify-between">
+                        <span><i class="fa-solid fa-chart-bar text-blue-400"></i> 収穫グループ比率</span>
+                    </div>
+                    <div class="space-y-1.5 text-xs">
+                        <div>
+                            <div class="flex justify-between text-[11px] text-slate-400 mb-0.5">
+                                <span>平パック向け (6〜12玉)</span>
+                                <span id="ratio-flat-val">0.0%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                <div id="ratio-flat-bar" class="bg-rose-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[11px] text-slate-400 mb-0.5">
+                                <span>レギュラーパック (S〜2L)</span>
+                                <span id="ratio-reg-val">0.0%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                <div id="ratio-reg-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- PACK SUMMARY (1パック 280g) -->
                 <div class="bg-slate-900/80 p-3.5 rounded-xl border border-amber-500/30 mb-3 space-y-2.5 shadow-inner">
                     <div class="text-xs font-bold text-amber-300 flex items-center justify-between border-b border-slate-800 pb-1.5">
@@ -231,7 +261,11 @@
         // 完全安定待ち判定用の変数
         let lastStableWeight = -1;
         let stableCount = 0;
-        const STABLE_THRESHOLD_COUNT = 4; // 約300〜400ms間、値が完全に静止したら確定
+        const STABLE_THRESHOLD_COUNT = 4;
+
+        // 音声認識用
+        let recognition = null;
+        let isVoiceActive = false;
 
         RanksDef.forEach(r => {
             state.stats[r.key] = { count: 0, weight: 0.0 };
@@ -276,6 +310,61 @@
             synth.speak(utter);
         }
 
+        // --- 音声コマンド（ハンズフリー操作） ---
+        function toggleVoiceCommand() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("お使いのブラウザは音声認識に対応していません（Chrome等をご利用ください）。");
+                return;
+            }
+
+            if (isVoiceActive) {
+                if (recognition) recognition.stop();
+                isVoiceActive = false;
+                document.getElementById('btn-voice-cmd').className = "bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-300 text-xs font-bold px-3 py-2 rounded-lg transition duration-200 flex items-center gap-1.5 shadow-md border border-slate-600";
+                document.getElementById('mic-icon').className = "fa-solid fa-microphone-slash text-slate-400";
+                document.getElementById('mic-text').innerText = "音声操作OFF";
+                speakText("音声操作オフ");
+            } else {
+                recognition = new SpeechRecognition();
+                recognition.lang = 'ja-JP';
+                recognition.continuous = true;
+                recognition.interimResults = false;
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[event.results.length - 1][0].transcript.trim();
+                    console.log("音声認識: " + transcript);
+                    if (transcript.includes('とりけし') || transcript.includes('取り消し')) {
+                        undoLastItem();
+                    } else if (transcript.includes('リセット')) {
+                        resetStats();
+                    }
+                };
+
+                recognition.onerror = (e) => {
+                    console.log("音声認識エラー: " + e.error);
+                };
+
+                recognition.onend = () => {
+                    if (isVoiceActive) {
+                        try { recognition.start(); } catch(e){}
+                    }
+                };
+
+                try {
+                    recognition.start();
+                    isVoiceActive = true;
+                    document.getElementById('btn-voice-cmd').className = "bg-rose-600 hover:bg-rose-500 active:scale-95 text-white text-xs font-bold px-3 py-2 rounded-lg transition duration-200 flex items-center gap-1.5 shadow-md border border-rose-500 animate-pulse";
+                    document.getElementById('mic-icon').className = "fa-solid fa-microphone text-white";
+                    document.getElementById('mic-text').innerText = "音声操作ON";
+                    playBeep();
+                    speakText("音声操作オン");
+                } catch(e) {
+                    alert("マイクの起動に失敗しました。");
+                }
+            }
+        }
+
         function getThresholds() {
             return {
                 '6': parseFloat(document.getElementById('th-6').value) || 47.0,
@@ -316,7 +405,7 @@
 
             if (!state.isBasketSet) return;
 
-            // 基準重量より重くなった場合（イチゴの補充や乗せ直し）
+            // 基準重量より重くなった場合（イチゴの補充など）
             if (newGross > state.baseWeight + 5.0) {
                 lastStableWeight = -1;
                 stableCount = 0;
@@ -332,32 +421,27 @@
                 return;
             }
 
-            // --- 完全安定判定ロジック ---
-            // 前回受信した値とほぼ同じ（±0.5g以内）であれば、静止しているとみなす
+            // 完全安定待ち判定ロジック
             if (Math.abs(newGross - lastStableWeight) <= 0.5) {
                 stableCount++;
             } else {
-                // 動いている最中はカウントをリセットして、新しい値を追う
                 lastStableWeight = newGross;
                 stableCount = 0;
                 
-                // 動いている最中でも、画面のプレビュー表示だけはリアルタイムに更新
                 const currentDiff = state.baseWeight - newGross;
                 if (currentDiff >= 5.0) {
                     const tempRank = evaluateRank(currentDiff);
                     document.getElementById('removed-weight-display').innerText = currentDiff.toFixed(1);
                     const badge = document.getElementById('rank-badge');
-                    badge.innerText = tempRank.name + " (計測中...)";
+                    badge.innerText = tempRank.name + " (計測中)";
                     badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-2xl md:text-3xl shadow-inner transition-all duration-300 border text-slate-300 bg-slate-800 border-slate-600";
                 }
             }
 
-            // 静止状態が一定回数（約300〜400ms）続いたら、ここで初めてスパッと確定！
             if (stableCount >= STABLE_THRESHOLD_COUNT) {
                 const diffWeight = state.baseWeight - newGross;
                 if (diffWeight >= 5.0) {
                     finalizePickedBerry(newGross, diffWeight);
-                    // 確定したら安定カウンターをリセットして次の動作に備える
                     stableCount = 0;
                     lastStableWeight = -1;
                 }
@@ -373,7 +457,6 @@
             badge.className = "inline-block px-6 py-2 rounded-2xl font-black text-3xl md:text-4xl shadow-inner transition-all duration-300 border text-white bg-slate-700 border-slate-600";
 
             playBeep();
-            // 数字だけをスパッと読み上げ
             speakText(`${diffWeight.toFixed(1)}`);
             
             state.prevBaseWeight = state.baseWeight;
@@ -484,6 +567,20 @@
             document.getElementById('pack-reg-count').innerText = regPacks.toFixed(2);
             document.getElementById('pack-flat-weight').innerText = flatWeight.toFixed(1);
             document.getElementById('pack-flat-count').innerText = flatPacks.toFixed(2);
+
+            // --- 比率ダッシュボード計算 ---
+            const totalGroupWeight = regWeight + flatWeight;
+            let flatRatio = 0;
+            let regRatio = 0;
+            if (totalGroupWeight > 0) {
+                flatRatio = (flatWeight / totalGroupWeight) * 100;
+                regRatio = (regWeight / totalGroupWeight) * 100;
+            }
+
+            document.getElementById('ratio-flat-val').innerText = flatRatio.toFixed(1) + '%';
+            document.getElementById('ratio-flat-bar').style.width = flatRatio + '%';
+            document.getElementById('ratio-reg-val').innerText = regRatio.toFixed(1) + '%';
+            document.getElementById('ratio-reg-bar').style.width = regRatio + '%';
 
             document.getElementById('total-count-badge').innerText = `合計: ${state.stats.totalCount} 個`;
             document.getElementById('total-weight').innerText = state.stats.totalWeight.toFixed(1);
